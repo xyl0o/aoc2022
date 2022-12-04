@@ -7,8 +7,12 @@ fn main() {
 
     let file_path = &args[1];
 
-    let contents = fs::read_to_string(file_path)
+    let content = fs::read_to_string(file_path)
         .expect("Unable to read file");
 
-    println!("With text:\n{contents}");
+    let mut lines = content.lines();
+
+    for line in lines {
+        println!("Line: {line}");
+    }
 }
