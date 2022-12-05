@@ -78,36 +78,6 @@ impl ElfGroup {
         sets[2].extend(self.elves[2].first_comp.chars());
         sets[2].extend(self.elves[2].second_comp.chars());
 
-        // for (idx, elf) in self.elves.iter().enumerate() {
-        //     sets[idx].extend(elf.first_comp.chars());
-        //     set.extend(elf.second_comp.chars());
-
-        //     // for c in first_chars.chain(second_chars) {
-        //     //     let c = c.clone();
-        //     //     if chars.insert(c) {
-        //     //         return Some(c);
-        //     //     }
-        //     // }
-        // }
-
-        // let intersection: HashSet<char> = sets[0]
-        //     .intersection(&sets[1])
-        //     .collect()
-
-        // let intersection: HashSet<char> =
-        //     intersection.intersection(&sets[2])
-        //     .collect();
-
-        // intersection.iter().next().copied()
-
-        // let intersection = sets
-        //     .iter()
-        //     .skip(1)
-        //     .fold(&sets[0].clone(), |acc, hs| {
-        //         acc.intersection(hs).cloned().collect()
-        //     });
-        // intersection.iter().next().copied()
-
         let tmp : HashSet<char> = sets[0]
             .intersection(&sets[1])
             .copied()
