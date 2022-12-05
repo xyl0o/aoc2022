@@ -5,17 +5,26 @@ use std::fs;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let file_path = &args[1];
+    let day = &args[1].parse().expect("Not a valid day");
+    let file_path = &args[2];
 
-    let content = fs::read_to_string(file_path)
+    let input = fs::read_to_string(file_path)
         .expect("Unable to read file");
 
-    most_cal(&content);
-    most_top3_cal(&content);
+    match day {
+        1 => day_one(input),
+        _ => println!("Unknown day"),
+    }
 }
 
-fn most_cal(content: &String) {
-    let lines = content.lines();
+fn day_one(input: String) {
+    most_cal(&input);
+    most_top3_cal(&input);
+
+}
+
+fn most_cal(input: &String) {
+    let lines = input.lines();
 
     let mut most_cal: u32 = 0;
     let mut most_cal_elf: u32 = 1;
@@ -46,8 +55,8 @@ fn most_cal(content: &String) {
 }
 
 
-fn most_top3_cal(content: &String) {
-    let lines = content.lines();
+fn most_top3_cal(input: &String) {
+    let lines = input.lines();
 
     let mut cal_stack = [0, 0, 0, 0];
 
