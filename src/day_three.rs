@@ -1,5 +1,5 @@
-
 use std::collections::HashSet;
+use std::iter::zip;
 
 
 pub fn day_three(input: String) {
@@ -47,6 +47,68 @@ impl Rucksack {
         }
 
         None
+    }
+
+    // pub fn iter_chars(&self) -> impl Iterator<Item = &'a char> {
+    //     let first_chars = self.first_comp.chars();
+    //     let second_chars = self.second_comp.chars();
+
+    //     first_chars.chain(second_chars)
+    // }
+}
+
+#[derive(Debug)]
+struct ElfGroup {
+    elves: [Rucksack; 3],
+}
+
+impl ElfGroup {
+    pub fn badge(&self) -> Option<char>{
+        let sets = [
+            HashSet::new(),
+            HashSet::new(),
+            HashSet::new(),
+        ];
+
+        for (elf, mut set) in zip(self.elves.iter(), sets) {
+            set.extend(elf.first_comp.chars());
+            set.extend(elf.second_comp.chars());
+
+            // for c in first_chars.chain(second_chars) {
+            //     let c = c.clone();
+            //     if chars.insert(c) {
+            //         return Some(c);
+            //     }
+            // }
+        }
+
+        // let intersection: HashSet<char> = sets[0]
+        //     .intersection(&sets[1])
+        //     .collect()
+
+        // let intersection: HashSet<char> =
+        //     intersection.intersection(&sets[2])
+        //     .collect();
+
+        // intersection.iter().next().copied()
+
+        // let intersection = sets
+        //     .iter()
+        //     .skip(1)
+        //     .fold(&sets[0].clone(), |acc, hs| {
+        //         acc.intersection(hs).cloned().collect()
+        //     });
+        // intersection.iter().next().copied()
+
+        let tmp = sets[0]
+            .intersection(&sets[1])
+            .copied()
+            .collect::<HashSet<char>>()
+            .intersection(&sets[2])
+            .copied()
+            .collect::<HashSet<char>>();
+
+        tmp.iter().next().copied()
     }
 }
 
@@ -118,4 +180,33 @@ mod tests {
         assert_eq!(prio, 52);
     }
 
+    #[test]
+    fn test_badge() {
+        let badge = ElfGroup { elves: [
+            Rucksack::new("aixB"),
+            Rucksack::new("ciyD"),
+            Rucksack::new("eizF"),
+        ]}.badge().unwrap();
+        let badge_prio = priority(badge);
+        assert_eq!(badge, 'i');
+        assert_eq!(badge_prio, 18);
+
+        let badge = ElfGroup { elves: [
+            Rucksack::new("vJrwpWtwJgWrhcsFMMfFFhFp"),
+            Rucksack::new("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"),
+            Rucksack::new("PmmdzqPrVvPwwTWBwg"),
+        ]}.badge().unwrap();
+        let badge_prio = priority(badge);
+        assert_eq!(badge, 'r');
+        assert_eq!(badge_prio, 18);
+
+        let badge = ElfGroup { elves: [
+            Rucksack::new("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn"),
+            Rucksack::new("ttgJtRGJQctTZtZT"),
+            Rucksack::new("CrZsJsPPZsGzwwsLwLmpwMDw"),
+        ]}.badge().unwrap();
+        let badge_prio = priority(badge);
+        assert_eq!(badge, 'Z');
+        assert_eq!(badge_prio, 52);
+    }
 }
