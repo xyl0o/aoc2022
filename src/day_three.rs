@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::iter::zip;
 
 
 pub fn day_three(input: String) {
@@ -64,23 +63,32 @@ struct ElfGroup {
 
 impl ElfGroup {
     pub fn badge(&self) -> Option<char>{
-        let sets = [
+        let mut sets = [
             HashSet::new(),
             HashSet::new(),
             HashSet::new(),
         ];
 
-        for (elf, mut set) in zip(self.elves.clone().iter(), sets) {
-            set.extend(elf.first_comp.chars());
-            set.extend(elf.second_comp.chars());
+        sets[0].extend(self.elves[0].first_comp.chars());
+        sets[0].extend(self.elves[0].second_comp.chars());
 
-            // for c in first_chars.chain(second_chars) {
-            //     let c = c.clone();
-            //     if chars.insert(c) {
-            //         return Some(c);
-            //     }
-            // }
-        }
+        sets[1].extend(self.elves[1].first_comp.chars());
+        sets[1].extend(self.elves[1].second_comp.chars());
+
+        sets[2].extend(self.elves[2].first_comp.chars());
+        sets[2].extend(self.elves[2].second_comp.chars());
+
+        // for (idx, elf) in self.elves.iter().enumerate() {
+        //     sets[idx].extend(elf.first_comp.chars());
+        //     set.extend(elf.second_comp.chars());
+
+        //     // for c in first_chars.chain(second_chars) {
+        //     //     let c = c.clone();
+        //     //     if chars.insert(c) {
+        //     //         return Some(c);
+        //     //     }
+        //     // }
+        // }
 
         // let intersection: HashSet<char> = sets[0]
         //     .intersection(&sets[1])
@@ -100,13 +108,15 @@ impl ElfGroup {
         //     });
         // intersection.iter().next().copied()
 
-        let tmp = sets[0]
+        let tmp : HashSet<char> = sets[0]
             .intersection(&sets[1])
             .copied()
-            .collect::<HashSet<char>>()
+            .collect();
+
+        let tmp : HashSet<char> = tmp
             .intersection(&sets[2])
             .copied()
-            .collect::<HashSet<char>>();
+            .collect();
 
         tmp.iter().next().copied()
     }
@@ -189,7 +199,7 @@ mod tests {
         ]}.badge().unwrap();
         let badge_prio = priority(badge);
         assert_eq!(badge, 'i');
-        assert_eq!(badge_prio, 18);
+        assert_eq!(badge_prio, 9);
 
         let badge = ElfGroup { elves: [
             Rucksack::new("vJrwpWtwJgWrhcsFMMfFFhFp"),
