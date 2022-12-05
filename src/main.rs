@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 
 mod day_one;
+mod day_two;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -14,6 +15,7 @@ fn main() {
 
     match day {
         1 => day_one::day_one(input),
+        2 => day_two::day_two(input),
         _ => println!("Unknown day"),
     }
 }
