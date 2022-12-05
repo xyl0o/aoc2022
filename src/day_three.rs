@@ -17,7 +17,7 @@ pub fn day_three(input: String) {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Rucksack {
     first_comp: String,
     second_comp: String,
@@ -70,7 +70,7 @@ impl ElfGroup {
             HashSet::new(),
         ];
 
-        for (elf, mut set) in zip(self.elves.iter(), sets) {
+        for (elf, mut set) in zip(self.elves.clone().iter(), sets) {
             set.extend(elf.first_comp.chars());
             set.extend(elf.second_comp.chars());
 
