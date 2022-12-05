@@ -3,7 +3,17 @@ use std::collections::HashSet;
 
 
 pub fn day_three(input: String) {
-    println!("Rucksack: {:?}", Rucksack::new("vJrwpWtwJgWrhcsFMMfFFhFp"));
+    let prio_sum: u32 = input
+        .lines()
+        .map(|l| {
+            priority(
+                Rucksack::new(l)
+                .first_duplicate()
+                .unwrap()
+            ) })
+        .sum();
+
+    println!("Sum of prios of duplicates: {:?}", prio_sum);
 }
 
 
