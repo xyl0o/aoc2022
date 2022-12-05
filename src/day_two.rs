@@ -5,6 +5,11 @@ pub fn day_two(input: String) {
     let points = strategy_guide(&guide);
 
     println!("Total score of guide: {:?}", points);
+
+    let guide : Vec<Game> = input.lines().map(parse_line_v2).collect();
+    let points = strategy_guide(&guide);
+
+    println!("Total score of guide v2: {:?}", points);
 }
 
 #[derive(Debug,PartialEq)]
@@ -41,6 +46,30 @@ fn parse_line(line: &str) -> Game {
     Game {
         opponent,
         player,
+    }
+}
+
+fn parse_line_v2(line: &str) -> Game {
+    let opponent_char = line.chars().nth(0).expect("Invalid game");
+    let outcome_char = line.chars().nth(2).expect("Invalid game");
+
+    match (opponent_char, outcome_char) {
+        // X -> need to loose
+        ('A', 'X') => Game{opponent: Play::Rock, player: Play::Scissors},
+        ('B', 'X') => Game{opponent: Play::Paper, player: Play::Rock},
+        ('C', 'X') => Game{opponent: Play::Scissors, player: Play::Paper},
+
+        // Y -> need to draw
+        ('A', 'Y') => Game{opponent: Play::Rock, player: Play::Rock},
+        ('B', 'Y') => Game{opponent: Play::Paper, player: Play::Paper},
+        ('C', 'Y') => Game{opponent: Play::Scissors, player: Play::Scissors},
+
+        // X -> need to win
+        ('A', 'Z') => Game{opponent: Play::Rock, player: Play::Paper},
+        ('B', 'Z') => Game{opponent: Play::Paper, player: Play::Scissors},
+        ('C', 'Z') => Game{opponent: Play::Scissors, player: Play::Rock},
+
+        _ => panic!("Invalid char in game"),
     }
 }
 
@@ -92,6 +121,21 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_line_v2() {
+        let result = parse_line_v2("A X");
+        assert_eq!(result, Game{opponent: Play::Rock, player: Play::Scissors});
+
+        let result = parse_line_v2("B X");
+        assert_eq!(result, Game{opponent: Play::Paper, player: Play::Rock});
+
+        let result = parse_line_v2("C Y");
+        assert_eq!(result, Game{opponent: Play::Scissors, player: Play::Scissors});
+
+        let result = parse_line_v2("C Z");
+        assert_eq!(result, Game{opponent: Play::Scissors, player: Play::Rock});
+    }
+
+    #[test]
     fn test_points() {
         let result = points(&parse_line("A Y"));
         assert_eq!(result, 8);
@@ -112,5 +156,16 @@ mod tests {
         ];
         let result = strategy_guide(&guide);
         assert_eq!(result, 15);
+    }
+
+    #[test]
+    fn test_strategy_guide_v2() {
+        let guide = [
+            parse_line_v2("A Y"),
+            parse_line_v2("B X"),
+            parse_line_v2("C Z"),
+        ];
+        let result = strategy_guide(&guide);
+        assert_eq!(result, 12);
     }
 }
