@@ -6,12 +6,21 @@ pub fn day_four(input: String) {
         "Number of fully contained assignments: {:?}",
         day_four_part_one(input.as_ref())
     );
+
+    println!(
+        "Number of overlapping assignments: {:?}",
+        day_four_part_two(input.as_ref())
+    );
 }
 
 pub fn day_four_part_one(input: &str) -> u32 {
     input.lines().fold(0, |acc, line| {
         if fully_contained(line) { acc + 1 } else { acc }
     })
+}
+
+pub fn day_four_part_two(input: &str) -> u32 {
+    todo!()
 }
 
 fn fully_contained(assignment: &str) -> bool {
@@ -29,6 +38,10 @@ fn fully_contained(assignment: &str) -> bool {
 
     // one.is_subset(&two) || two.is_subset(&one)
     one.is_superset(&two) || two.is_superset(&one)
+}
+
+fn overlapping(assignment: &str) -> bool {
+    todo!()
 }
 
 #[cfg(test)]
@@ -61,5 +74,32 @@ mod tests {
             2-6,4-8
         "};
         assert_eq!(day_four_part_one(puzzle_input), 2);
+    }
+
+    #[test]
+    fn test_overlapping_false() {
+        assert_eq!(overlapping("2-4,6-8"), false);
+        assert_eq!(overlapping("2-3,4-5"), false);
+    }
+
+    #[test]
+    fn test_overlapping_true() {
+        assert_eq!(overlapping("5-7,7-9"), true);
+        assert_eq!(overlapping("2-8,3-7"), true);
+        assert_eq!(overlapping("6-6,4-6"), true);
+        assert_eq!(overlapping("2-6,4-8"), true);
+    }
+
+    #[test]
+    fn test_day_four_part_two_with_example_input() {
+        let puzzle_input = indoc! {"
+            2-4,6-8
+            2-3,4-5
+            5-7,7-9
+            2-8,3-7
+            6-6,4-6
+            2-6,4-8
+        "};
+        assert_eq!(day_four_part_two(puzzle_input), 4);
     }
 }
