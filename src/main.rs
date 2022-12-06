@@ -9,9 +9,22 @@ mod day_four;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let day = &args[1].parse().expect("Not a valid day");
-    let file_path = &args[2];
+    match args.len() {
+        2 => {
+            let day : u32 = args[1].parse().expect("Not a valid day");
+            let file_path = format!("./input/day{}.txt", day);
+            single_day(day, file_path.as_ref());
+        },
+        3 => {
+            let day : u32 = args[1].parse().expect("Not a valid day");
+            let file_path = &args[2];
+            single_day(day, file_path);
+        },
+        _ => panic!("Unsupported number of arguments"),
+    }
+}
 
+fn single_day(day: u32, file_path: &str) {
     let input = fs::read_to_string(file_path)
         .expect("Unable to read file");
 
