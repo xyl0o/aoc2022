@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+use std::iter::FromIterator;
 use indoc::indoc;
 
 pub fn day_four(input: String) {
@@ -9,7 +11,20 @@ pub fn day_four_part_one(input: &str) -> u32 {
 }
 
 fn fully_contained(assignment: &str) -> bool {
-    todo!()
+    let (one, two) = assignment.split_once(',').unwrap();
+
+    let (one_start, one_end) = one.split_once('-').unwrap();
+    let one_start : u32 = one_start.parse().unwrap();
+    let one_end : u32 = one_end.parse().unwrap();
+    let one : HashSet<u32> = HashSet::from_iter(one_start..one_end + 1);
+
+    let (two_start, two_end) = two.split_once('-').unwrap();
+    let two_start : u32 = two_start.parse().unwrap();
+    let two_end : u32 = two_end.parse().unwrap();
+    let two : HashSet<u32> = HashSet::from_iter(two_start..two_end + 1);
+
+    // one.is_subset(&two) || two.is_subset(&one)
+    one.is_superset(&two) || two.is_superset(&one)
 }
 
 #[cfg(test)]
