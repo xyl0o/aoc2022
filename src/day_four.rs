@@ -7,7 +7,9 @@ pub fn day_four(input: String) {
 }
 
 pub fn day_four_part_one(input: &str) -> u32 {
-    todo!()
+    input.lines().fold(0, |acc, line| {
+        if fully_contained(line) { acc + 1 } else { acc }
+    })
 }
 
 fn fully_contained(assignment: &str) -> bool {
