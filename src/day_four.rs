@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 use std::iter::FromIterator;
-use indoc::indoc;
 
 pub fn day_four(input: String) {
     todo!()
@@ -31,6 +30,7 @@ fn fully_contained(assignment: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use indoc::indoc;
     use super::*;
 
     #[test]
