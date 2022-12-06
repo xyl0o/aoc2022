@@ -1,4 +1,6 @@
 use std::collections::HashSet;
+use itertools::Itertools;
+use std::convert::TryInto;
 
 
 pub fn day_three(input: String) {
@@ -13,6 +15,19 @@ pub fn day_three(input: String) {
         .sum();
 
     println!("Sum of prios of duplicates: {:?}", prio_sum);
+
+    let mut badge_prio_sum = 0;
+    for group in input.lines().chunks(3).into_iter() {
+        let eg = ElfGroup { elves: group
+            .map(|l| { Rucksack::new(l) })
+            .collect::<Vec<Rucksack>>()
+            .try_into()
+            .unwrap()
+        };
+        badge_prio_sum += priority(eg.badge().unwrap());
+    }
+
+    println!("Sum of prios of badges: {:?}", badge_prio_sum);
 }
 
 
