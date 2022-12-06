@@ -2,7 +2,10 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 pub fn day_four(input: String) {
-    todo!()
+    println!(
+        "Number of fully contained assignments: {:?}",
+        day_four_part_one(input.as_ref())
+    );
 }
 
 pub fn day_four_part_one(input: &str) -> u32 {
