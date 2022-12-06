@@ -20,10 +20,12 @@ pub fn day_four_part_one(input: &str) -> u32 {
 }
 
 pub fn day_four_part_two(input: &str) -> u32 {
-    todo!()
+    input.lines().fold(0, |acc, line| {
+        if overlapping(line) { acc + 1 } else { acc }
+    })
 }
 
-fn fully_contained(assignment: &str) -> bool {
+fn construct_sets(assignment: &str) -> (HashSet<u32>, HashSet<u32>){
     let (one, two) = assignment.split_once(',').unwrap();
 
     let (one_start, one_end) = one.split_once('-').unwrap();
@@ -36,12 +38,18 @@ fn fully_contained(assignment: &str) -> bool {
     let two_end : u32 = two_end.parse().unwrap();
     let two : HashSet<u32> = HashSet::from_iter(two_start..two_end + 1);
 
-    // one.is_subset(&two) || two.is_subset(&one)
+    (one, two)
+}
+
+fn fully_contained(assignment: &str) -> bool {
+    let (one, two) = construct_sets(assignment);
+
     one.is_superset(&two) || two.is_superset(&one)
 }
 
 fn overlapping(assignment: &str) -> bool {
-    todo!()
+    let (one, two) = construct_sets(assignment);
+    one.intersection(&two).count() != 0
 }
 
 #[cfg(test)]
