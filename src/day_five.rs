@@ -1,13 +1,16 @@
-use std::iter::zip;
 use regex::Regex;
 use lazy_static::lazy_static;
 
 pub fn day_five(input: String) {
-    todo!()
+    println!(
+        "stack top: {:?}",
+        part_one(input.as_ref())
+    );
 }
 
 pub fn part_one(input: &str) -> String {
-    todo!()
+    let cb = CargoBay::new(input);
+    cb.stack_top()
 }
 
 #[derive(Debug)]
@@ -25,44 +28,51 @@ impl CargoBay {
         let mut lines = input
             .lines()
             .rev()
-            .skip_while(|x| RE_IDX.captures(x).is_some())
+            .skip_while(|x| !RE_IDX.is_match(x))
             .skip(1)
             .peekable();
 
         let first_line = lines.peek()
             .expect("No stacks found in cargo bay");
 
-        let matches = RE_FIRST.captures(&first_line)
-            .expect("Invalid cargo bay");
+        // get array of whitespace between crates
+        let caps : Vec<String> = RE_FIRST
+            .captures_iter(&first_line)
+            .map(|cap| cap[1].to_string())
+            .collect();
 
-        let cb = CargoBay {
-            stacks: vec![vec![]; matches.len()]
+        let mut cb = CargoBay {
+            stacks: vec![Vec::new(); caps.len()]
         };
 
-        // pattern_str = ''.join(
-        //     "(?:" + m + r"(?:   |\[(\w)\])" for m in matches
-        // ) + ")?" * len(matches)
-        let re = Regex::new(r"^(\s*\d+)+").unwrap();
+        // prepare regex with exact whitespace matching
+        let re_str = caps.iter().fold(
+            String::new(), |acc, cap| {
+                acc + &format!("(?:{}(?:   |\\[(\\w)\\])", cap)
+            });
+        let re_str = re_str + &")?".repeat(caps.len());
+        let re = Regex::new(re_str.as_str()).unwrap();
 
         for line in lines {
-
-            let matches = match re.captures(&line) {
+            let caps = match re.captures(&line) {
                 Some(expr) => expr,
-                None => return cb,
+                None => continue,
             };
-
-            for (m, mut s) in zip(matches.iter(), cb.stacks.iter()) {
-                if let Some(m) = m {
-                    s.push(m);
+            for idx in 0..cb.stacks.len() {
+                if let Some(cargo) = caps.get(idx + 1) {
+                    cb.stacks[idx].push(
+                        cargo.as_str().chars().next().unwrap());
                 }
             }
         }
-
         cb
     }
 
     pub fn stack_top(&self) -> String {
-        todo!()
+        self.stacks.iter().fold(
+            String::new(),
+            |acc, stack| acc + &stack.last().unwrap().to_string()
+        )
     }
 }
 
@@ -123,7 +133,7 @@ mod tests {
         assert_eq!(cb.stack_top(), "BC");
 
         let cb = CargoBay { stacks: vec![vec!['Z']]};
-        assert_eq!(cb.stack_top(), "BC");
+        assert_eq!(cb.stack_top(), "Z");
 
         let cb = CargoBay { stacks: vec![
             vec!['D'],
