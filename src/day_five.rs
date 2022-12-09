@@ -169,22 +169,6 @@ mod tests {
     use indoc::indoc;
 
     #[test]
-    fn test_part_one() {
-        let puzzle_input = indoc! {"
-                [D]
-            [N] [C]
-            [Z] [M] [P]
-             1   2   3
-
-            move 1 from 2 to 1
-            move 3 from 1 to 3
-            move 2 from 2 to 1
-            move 1 from 1 to 2
-        "};
-        assert_eq!(part_one(puzzle_input), "CMZ");
-    }
-
-    #[test]
     fn test_cargo_bay_creation() {
         let cargo_bay = indoc! {"
                 [D]
@@ -292,37 +276,5 @@ mod tests {
         // M
         // P C D N
         assert_eq!(cb.stack_top(), "ZMN");
-    }
-
-    #[test]
-    fn test_movement_9001_example_given() {
-        let mut cb = CargoBay { stacks: vec![
-            vec!['Z', 'N'],
-            vec!['M', 'C', 'D'],
-            vec!['P'],
-        ]};
-        CrateMover9001::operate_crane(&mut cb, "move 1 from 2 to 1");
-        // Z N D
-        // M C
-        // P
-        assert_eq!(cb.stack_top(), "DCP");
-
-        CrateMover9001::operate_crane(&mut cb, "move 3 from 1 to 3");
-        //
-        // M C
-        // P Z N D
-        assert_eq!(cb.stack_top(), " CD");
-
-        CrateMover9001::operate_crane(&mut cb, "move 2 from 2 to 1");
-        // M C
-        //
-        // P Z N D
-        assert_eq!(cb.stack_top(), "C D");
-
-        CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
-        // M
-        // C
-        // P Z N D
-        assert_eq!(cb.stack_top(), "MCD");
     }
 }

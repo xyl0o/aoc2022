@@ -154,26 +154,4 @@ mod tests {
         let result = points(&parse_line("C Z"));
         assert_eq!(result, 6);
     }
-
-    #[test]
-    fn test_strategy_guide() {
-        let guide = [
-            parse_line("A Y"),
-            parse_line("B X"),
-            parse_line("C Z"),
-        ];
-        let result = strategy_guide(&guide);
-        assert_eq!(result, 15);
-    }
-
-    #[test]
-    fn test_strategy_guide_v2() {
-        let guide = [
-            parse_line_v2("A Y"),
-            parse_line_v2("B X"),
-            parse_line_v2("C Z"),
-        ];
-        let result = strategy_guide(&guide);
-        assert_eq!(result, 12);
-    }
 }

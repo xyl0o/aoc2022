@@ -74,19 +74,6 @@ mod tests {
     }
 
     #[test]
-    fn test_part_one_with_example_input() {
-        let puzzle_input = indoc! {"
-            2-4,6-8
-            2-3,4-5
-            5-7,7-9
-            2-8,3-7
-            6-6,4-6
-            2-6,4-8
-        "};
-        assert_eq!(part_one(puzzle_input), 2);
-    }
-
-    #[test]
     fn test_overlapping_false() {
         assert_eq!(overlapping("2-4,6-8"), false);
         assert_eq!(overlapping("2-3,4-5"), false);
@@ -98,18 +85,5 @@ mod tests {
         assert_eq!(overlapping("2-8,3-7"), true);
         assert_eq!(overlapping("6-6,4-6"), true);
         assert_eq!(overlapping("2-6,4-8"), true);
-    }
-
-    #[test]
-    fn test_part_two_with_example_input() {
-        let puzzle_input = indoc! {"
-            2-4,6-8
-            2-3,4-5
-            5-7,7-9
-            2-8,3-7
-            6-6,4-6
-            2-6,4-8
-        "};
-        assert_eq!(part_two(puzzle_input), 4);
     }
 }
