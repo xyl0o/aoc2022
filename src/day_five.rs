@@ -79,8 +79,12 @@ impl CargoBay {
             |acc, stack| acc + &stack.last().unwrap_or(&' ').to_string()
         )
     }
+}
 
-    pub fn operate_crane(&mut self, line: &str) {
+trait CrateMover {
+    fn operate_crane(cb: &mut CargoBay, line: &str);
+
+    fn parse_line(line: &str) -> (usize, usize, usize) {
         lazy_static! {
             static ref RE_LINE: Regex = Regex::new(
                 r"move\s*(\d+)\s*from\s*(\d+)\s*to\s*(\d+)").unwrap();
@@ -96,9 +100,18 @@ impl CargoBay {
         let target_stack : usize = caps.get(3).unwrap()
             .as_str().parse().unwrap();
 
+        ( amount, source_stack, target_stack )
+    }
+}
+
+struct CrateMover9000 {}
+
+impl CrateMover for CrateMover9000 {
+    fn operate_crane(cb: &mut CargoBay, line: &str) {
+        let (amount, source, target) = <CrateMover9000 as CrateMover>::parse_line(line);
         for _ in 0..amount {
-            if let Some(cargo) = self.stacks[source_stack - 1].pop() {
-                self.stacks[target_stack - 1].push(cargo);
+            if let Some(cargo) = cb.stacks[source - 1].pop() {
+                cb.stacks[target - 1].push(cargo);
             }
         }
     }
