@@ -67,6 +67,9 @@ impl CargoBay {
                 Some(expr) => expr,
                 None => continue,
             };
+
+            // every group matching needs to be pushed
+            // into the corresponding stack
             for idx in 0..cb.stacks.len() {
                 if let Some(cargo) = caps.get(idx + 1) {
                     cb.stacks[idx].push(
