@@ -184,4 +184,31 @@ mod tests {
         ]};
         assert_eq!(cb.stack_top(), "DACF");
     }
+
+    #[test]
+    fn test_movement() {
+        let mut cb = CargoBay { stacks: vec![
+            vec!['A', 'B'],
+            vec!['C']
+        ]};
+        CrateMover9000::operate_crane(&mut cb, "move 1 from 1 to 2");
+        assert_eq!(cb.stack_top(), "AB");
+
+        CrateMover9000::operate_crane(&mut cb, "move 2 from 2 to 1");
+        assert_eq!(cb.stack_top(), "C ");
+
+        CrateMover9000::operate_crane(&mut cb, "move 3 from 1 to 2");
+        assert_eq!(cb.stack_top(), " A");
+
+        let mut cb = CargoBay { stacks: vec![
+            vec!['Z', 'N'],
+            vec!['M', 'C', 'D'],
+            vec!['P'],
+        ]};
+        CrateMover9000::operate_crane(&mut cb, "move 1 from 1 to 2");
+        assert_eq!(cb.stack_top(), "ZNP");
+
+        CrateMover9000::operate_crane(&mut cb, "move 3 from 2 to 3");
+        assert_eq!(cb.stack_top(), "ZMC");
+    }
 }
