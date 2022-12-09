@@ -60,6 +60,9 @@ pub fn part_two(input: &str) -> u32 {
         cal_stack[0] += result;
     }
 
+    cal_stack.sort();
+    cal_stack[0] = 0;
+
     let top_three = &cal_stack[1..4];
     let top_three_sum = top_three.iter().sum::<u32>();
 
