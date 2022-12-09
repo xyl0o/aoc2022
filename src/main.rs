@@ -1,16 +1,6 @@
 use std::env;
 use std::fs;
 
-mod day_one;
-mod day_two;
-mod day_three;
-mod day_four;
-mod day_five;
-mod day_six;
-mod day_seven;
-mod day_eight;
-mod day_nine;
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -34,15 +24,15 @@ fn single_day(day: u32, file_path: &str) {
         .expect("Unable to read file");
 
     match day {
-        1 => day_one::both(&input),
-        2 => day_two::both(&input),
-        3 => day_three::both(&input),
-        4 => day_four::both(&input),
-        5 => day_five::both(&input),
-        6 => day_six::both(&input),
-        7 => day_seven::both(&input),
-        8 => day_eight::both(&input),
-        9 => day_nine::both(&input),
+        1 => aoc2022::day_one::both(&input),
+        2 => aoc2022::day_two::both(&input),
+        3 => aoc2022::day_three::both(&input),
+        4 => aoc2022::day_four::both(&input),
+        5 => aoc2022::day_five::both(&input),
+        6 => aoc2022::day_six::both(&input),
+        7 => aoc2022::day_seven::both(&input),
+        8 => aoc2022::day_eight::both(&input),
+        9 => aoc2022::day_nine::both(&input),
         _ => println!("Unknown day"),
     }
 }
