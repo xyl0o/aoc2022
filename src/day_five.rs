@@ -9,8 +9,17 @@ pub fn day_five(input: String) {
 }
 
 pub fn part_one(input: &str) -> String {
-    let cb = CargoBay::new(input);
-    cb.stack_top()
+    let (cb, moves) = match input.split_once("\nmove") {
+        Some((cb, moves)) => (cb, "move".to_owned() + moves),
+        None => (input, "".to_owned()),
+    };
+
+    let mut cargo_bay = CargoBay::new(cb);
+
+    for line in moves.lines() {
+        CrateMover9000::operate_crane(&mut cargo_bay, line);
+    }
+    cargo_bay.stack_top()
 }
 
 #[derive(Debug)]
