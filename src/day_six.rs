@@ -16,11 +16,22 @@ pub fn both(input: &str) {
 }
 
 pub fn part_one(input: &str) -> u32 {
-    todo!();
+    packet_start_pos(input).unwrap()
 }
 
 pub fn part_two(input: &str) -> u32 {
     todo!();
+}
+
+fn packet_start_pos(stream: &str) -> Option<u32> {
+    stream
+        .chars()
+        .tuple_windows::<(_, _, _, _)>()
+        .map(|(a, b, c, d)| pairwise_distinct(&a, &b, &c, &d))
+        .enumerate()
+        .skip_while(|(idx, unique)| !unique)
+        .map(|(idx, unique)| (idx + 4) as u32) // change when TryFrom is stable
+        .next()
 }
 
 fn pairwise_distinct(a: &char, b: &char, c: &char, d: &char) -> bool {
