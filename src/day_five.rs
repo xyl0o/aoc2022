@@ -120,12 +120,25 @@ struct CrateMover9000 {}
 
 impl CrateMover for CrateMover9000 {
     fn operate_crane(cb: &mut CargoBay, line: &str) {
-        let (amount, source, target) = <CrateMover9000 as CrateMover>::parse_line(line);
-        for _ in 0..amount {
-            if let Some(cargo) = cb.stacks[source - 1].pop() {
-                cb.stacks[target - 1].push(cargo);
-            }
-        }
+        let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
+
+        let source = &mut cb.stacks[source - 1];
+        let cargo : Vec<_> = source
+            .drain(source.len() - amount..).rev().collect();
+        cb.stacks[target - 1].extend(cargo);
+    }
+}
+
+struct CrateMover9001 {}
+
+impl CrateMover for CrateMover9001 {
+    fn operate_crane(cb: &mut CargoBay, line: &str) {
+        let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
+
+        let source = &mut cb.stacks[source - 1];
+        let cargo : Vec<_> = source
+            .drain(source.len() - amount..).collect();
+        cb.stacks[target - 1].extend(cargo);
     }
 }
 
@@ -198,7 +211,7 @@ mod tests {
     }
 
     #[test]
-    fn test_movement() {
+    fn test_movement_9000() {
         let mut cb = CargoBay { stacks: vec![
             vec!['A', 'B'],
             vec!['C']
@@ -222,5 +235,73 @@ mod tests {
 
         CrateMover9000::operate_crane(&mut cb, "move 3 from 2 to 3");
         assert_eq!(cb.stack_top(), "ZMC");
+    }
+
+    #[test]
+    fn test_movement_9001_two_stacks_with_empty() {
+        let mut cb = CargoBay { stacks: vec![
+            vec!['A', 'B'],
+            vec!['C']
+        ]};
+        CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
+        assert_eq!(cb.stack_top(), "AB");
+
+        CrateMover9001::operate_crane(&mut cb, "move 2 from 2 to 1");
+        assert_eq!(cb.stack_top(), "B ");
+
+        CrateMover9001::operate_crane(&mut cb, "move 3 from 1 to 2");
+        assert_eq!(cb.stack_top(), " B");
+    }
+
+    #[test]
+    fn test_movement_9001_part_one() {
+        let mut cb = CargoBay { stacks: vec![
+            vec!['Z', 'N'],
+            vec!['M', 'C', 'D'],
+            vec!['P'],
+        ]};
+        CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
+        // Z
+        // M C D N
+        // P
+        assert_eq!(cb.stack_top(), "ZNP");
+
+        CrateMover9001::operate_crane(&mut cb, "move 3 from 2 to 3");
+        // Z
+        // M
+        // P C D N
+        assert_eq!(cb.stack_top(), "ZMN");
+    }
+
+    #[test]
+    fn test_movement_9001_example_given() {
+        let mut cb = CargoBay { stacks: vec![
+            vec!['Z', 'N'],
+            vec!['M', 'C', 'D'],
+            vec!['P'],
+        ]};
+        CrateMover9001::operate_crane(&mut cb, "move 1 from 2 to 1");
+        // Z N D
+        // M C
+        // P
+        assert_eq!(cb.stack_top(), "DCP");
+
+        CrateMover9001::operate_crane(&mut cb, "move 3 from 1 to 3");
+        //
+        // M C
+        // P Z N D
+        assert_eq!(cb.stack_top(), " CD");
+
+        CrateMover9001::operate_crane(&mut cb, "move 2 from 2 to 1");
+        // M C
+        //
+        // P Z N D
+        assert_eq!(cb.stack_top(), "C D");
+
+        CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
+        // M
+        // C
+        // P Z N D
+        assert_eq!(cb.stack_top(), "MCD");
     }
 }
