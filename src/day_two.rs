@@ -1,15 +1,23 @@
 
-pub fn day_two(input: String) {
+pub fn both(input: &str) {
+    part_one(input);
+    part_two(input);
+}
 
+pub fn part_one(input: &str) -> u32 {
     let guide : Vec<Game> = input.lines().map(parse_line).collect();
     let points = strategy_guide(&guide);
 
     println!("Total score of guide: {:?}", points);
+    points
+}
 
+pub fn part_two(input: &str) -> u32 {
     let guide : Vec<Game> = input.lines().map(parse_line_v2).collect();
     let points = strategy_guide(&guide);
 
     println!("Total score of guide v2: {:?}", points);
+    points
 }
 
 #[derive(Debug,PartialEq)]

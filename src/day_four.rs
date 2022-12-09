@@ -1,25 +1,27 @@
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
-pub fn day_four(input: String) {
+pub fn both(input: &str) {
+    let part_one_solution = part_one(input);
     println!(
         "Number of fully contained assignments: {:?}",
-        day_four_part_one(input.as_ref())
+        part_one_solution
     );
 
+    let part_two_solution = part_two(input);
     println!(
         "Number of overlapping assignments: {:?}",
-        day_four_part_two(input.as_ref())
+       part_two_solution
     );
 }
 
-pub fn day_four_part_one(input: &str) -> u32 {
+pub fn part_one(input: &str) -> u32 {
     input.lines().fold(0, |acc, line| {
         if fully_contained(line) { acc + 1 } else { acc }
     })
 }
 
-pub fn day_four_part_two(input: &str) -> u32 {
+pub fn part_two(input: &str) -> u32 {
     input.lines().fold(0, |acc, line| {
         if overlapping(line) { acc + 1 } else { acc }
     })
@@ -72,7 +74,7 @@ mod tests {
     }
 
     #[test]
-    fn test_day_four_part_one_with_example_input() {
+    fn test_part_one_with_example_input() {
         let puzzle_input = indoc! {"
             2-4,6-8
             2-3,4-5
@@ -81,7 +83,7 @@ mod tests {
             6-6,4-6
             2-6,4-8
         "};
-        assert_eq!(day_four_part_one(puzzle_input), 2);
+        assert_eq!(part_one(puzzle_input), 2);
     }
 
     #[test]
@@ -99,7 +101,7 @@ mod tests {
     }
 
     #[test]
-    fn test_day_four_part_two_with_example_input() {
+    fn test_part_two_with_example_input() {
         let puzzle_input = indoc! {"
             2-4,6-8
             2-3,4-5
@@ -108,6 +110,6 @@ mod tests {
             6-6,4-6
             2-6,4-8
         "};
-        assert_eq!(day_four_part_two(puzzle_input), 4);
+        assert_eq!(part_two(puzzle_input), 4);
     }
 }

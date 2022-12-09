@@ -34,15 +34,15 @@ fn single_day(day: u32, file_path: &str) {
         .expect("Unable to read file");
 
     match day {
-        1 => day_one::day_one(input),
-        2 => day_two::day_two(input),
-        3 => day_three::day_three(input),
-        4 => day_four::day_four(input),
-        5 => day_five::day_five(input),
-        6 => day_six::day_six(input),
-        7 => day_seven::day_seven(input),
-        8 => day_eight::day_eight(input),
-        9 => day_nine::day_nine(input),
+        1 => day_one::both(&input),
+        2 => day_two::both(&input),
+        3 => day_three::both(&input),
+        4 => day_four::both(&input),
+        5 => day_five::both(&input),
+        6 => day_six::both(&input),
+        7 => day_seven::both(&input),
+        8 => day_eight::both(&input),
+        9 => day_nine::both(&input),
         _ => println!("Unknown day"),
     }
 }

@@ -1,10 +1,10 @@
 
-pub fn day_one(input: String) {
-    most_cal(&input);
-    most_top3_cal(&input);
+pub fn both(input: &str) {
+    part_one(input);
+    part_two(input);
 }
 
-fn most_cal(input: &String) {
+pub fn part_one(input: &str) -> u32 {
     let lines = input.lines();
 
     let mut most_cal: u32 = 0;
@@ -33,10 +33,12 @@ fn most_cal(input: &String) {
 
     println!("Most cal: {most_cal}");
     println!("Elf with most cal: {most_cal_elf}");
+
+    most_cal
 }
 
 
-fn most_top3_cal(input: &String) {
+pub fn part_two(input: &str) -> u32 {
     let lines = input.lines();
 
     let mut cal_stack = [0, 0, 0, 0];
@@ -53,7 +55,10 @@ fn most_top3_cal(input: &String) {
     }
 
     let top_three = &cal_stack[1..4];
+    let top_three_sum = top_three.iter().sum::<u32>();
 
     println!("Top three cal: {:?}", top_three);
-    println!("Sum of top three cal: {:?}", top_three.iter().sum::<u32>());
+    println!("Sum of top three cal: {:?}", top_three_sum);
+
+    top_three_sum
 }

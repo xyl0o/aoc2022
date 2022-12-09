@@ -1,12 +1,15 @@
 
-pub fn day_nine(input: String) {
+pub fn both(input: &str) {
+    let part_one_solution = part_one(input);
     println!(
-        "part_one: {:?}",
-        part_one(input.as_ref())
+        "Part one: {:?}",
+        part_one_solution
     );
+
+    let part_two_solution = part_two(input);
     println!(
-        "part_two: {:?}",
-        part_two(input.as_ref())
+        "Part two: {:?}",
+       part_two_solution
     );
 }
 

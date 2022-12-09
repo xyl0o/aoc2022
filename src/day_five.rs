@@ -1,14 +1,17 @@
 use regex::Regex;
 use lazy_static::lazy_static;
 
-pub fn day_five(input: String) {
+pub fn both(input: &str) {
+    let part_one_solution = part_one(input);
     println!(
         "stack top CrateMover9000: {:?}",
-        part_one(input.as_ref())
+       part_one_solution
     );
+
+    let part_two_solution = part_two(input);
     println!(
         "stack top CrateMover9001: {:?}",
-        part_two(input.as_ref())
+        part_two_solution
     );
 }
 

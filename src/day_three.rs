@@ -2,8 +2,12 @@ use std::collections::HashSet;
 use itertools::Itertools;
 use std::convert::TryInto;
 
+pub fn both(input: &str) {
+    part_one(input);
+    part_two(input);
+}
 
-pub fn day_three(input: String) {
+pub fn part_one(input: &str) -> u32 {
     let prio_sum: u32 = input
         .lines()
         .map(|l| {
@@ -15,7 +19,10 @@ pub fn day_three(input: String) {
         .sum();
 
     println!("Sum of prios of duplicates: {:?}", prio_sum);
+    prio_sum
+}
 
+pub fn part_two(input: &str) -> u32 {
     let mut badge_prio_sum = 0;
     for group in input.lines().chunks(3).into_iter() {
         let eg = ElfGroup { elves: group
@@ -28,8 +35,8 @@ pub fn day_three(input: String) {
     }
 
     println!("Sum of prios of badges: {:?}", badge_prio_sum);
+    badge_prio_sum
 }
-
 
 #[derive(Debug, Clone)]
 struct Rucksack {
