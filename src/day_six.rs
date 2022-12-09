@@ -36,6 +36,24 @@ mod tests {
     }
 
     #[test]
+    fn test_packet_start_pos_example() {
+        let puzzle_input = "mjqjpqmgbljsphdztnvjfqwrcgsmlb";
+        assert_eq!(packet_start_pos(puzzle_input), Some(7));
+
+        let puzzle_input = "bvwbjplbgvbhsrlpgdmjqwftvncz";
+        assert_eq!(packet_start_pos(puzzle_input), Some(5));
+
+        let puzzle_input = "nppdvjthqldpwncqszvftbrmjlhg";
+        assert_eq!(packet_start_pos(puzzle_input), Some(6));
+
+        let puzzle_input = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg";
+        assert_eq!(packet_start_pos(puzzle_input), Some(10));
+
+        let puzzle_input = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
+        assert_eq!(packet_start_pos(puzzle_input), Some(11));
+    }
+
+    #[test]
     fn test_part_two() {
         todo!();
         // let puzzle_input = indoc! {""};
