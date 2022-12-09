@@ -3,8 +3,12 @@ use lazy_static::lazy_static;
 
 pub fn day_five(input: String) {
     println!(
-        "stack top: {:?}",
+        "stack top CrateMover9000: {:?}",
         part_one(input.as_ref())
+    );
+    println!(
+        "stack top CrateMover9001: {:?}",
+        part_two(input.as_ref())
     );
 }
 
@@ -18,6 +22,20 @@ pub fn part_one(input: &str) -> String {
 
     for line in moves.lines() {
         CrateMover9000::operate_crane(&mut cargo_bay, line);
+    }
+    cargo_bay.stack_top()
+}
+
+pub fn part_two(input: &str) -> String {
+    let (cb, moves) = match input.split_once("\nmove") {
+        Some((cb, moves)) => (cb, "move".to_owned() + moves),
+        None => (input, "".to_owned()),
+    };
+
+    let mut cargo_bay = CargoBay::new(cb);
+
+    for line in moves.lines() {
+        CrateMover9001::operate_crane(&mut cargo_bay, line);
     }
     cargo_bay.stack_top()
 }
