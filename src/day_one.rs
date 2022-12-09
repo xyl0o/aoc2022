@@ -1,7 +1,16 @@
 
 pub fn both(input: &str) {
-    part_one(input);
-    part_two(input);
+    let part_one_solution = part_one(input);
+    println!(
+        "Elf with most cal: {:?}",
+        part_one_solution
+    );
+
+    let part_two_solution = part_two(input);
+    println!(
+        "Sum of top three cal: {:?}",
+        part_two_solution
+    );
 }
 
 pub fn part_one(input: &str) -> u32 {
@@ -31,9 +40,6 @@ pub fn part_one(input: &str) -> u32 {
         curr_cal += result;
     }
 
-    println!("Most cal: {most_cal}");
-    println!("Elf with most cal: {most_cal_elf}");
-
     most_cal
 }
 
@@ -56,9 +62,6 @@ pub fn part_two(input: &str) -> u32 {
 
     let top_three = &cal_stack[1..4];
     let top_three_sum = top_three.iter().sum::<u32>();
-
-    println!("Top three cal: {:?}", top_three);
-    println!("Sum of top three cal: {:?}", top_three_sum);
 
     top_three_sum
 }
