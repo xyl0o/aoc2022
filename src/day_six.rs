@@ -15,11 +15,11 @@ pub fn both(input: &str) {
     );
 }
 
-pub fn part_one(input: &str) -> String {
+pub fn part_one(input: &str) -> u32 {
     todo!();
 }
 
-pub fn part_two(input: &str) -> String {
+pub fn part_two(input: &str) -> u32 {
     todo!();
 }
 
