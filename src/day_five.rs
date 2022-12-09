@@ -69,9 +69,14 @@ impl CargoBay {
     }
 
     pub fn stack_top(&self) -> String {
+        // self.stacks.iter().fold(
+        //     String::new(),
+        //     |acc, stack| acc + &stack.last()
+        //         .map_or("".to_owned(), |c| c.to_string())
+        // )
         self.stacks.iter().fold(
             String::new(),
-            |acc, stack| acc + &stack.last().unwrap().to_string()
+            |acc, stack| acc + &stack.last().unwrap_or(&' ').to_string()
         )
     }
 }
