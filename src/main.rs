@@ -9,6 +9,7 @@ mod day_five;
 mod day_six;
 mod day_seven;
 mod day_eight;
+mod day_nine;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -41,6 +42,7 @@ fn single_day(day: u32, file_path: &str) {
         6 => day_six::day_six(input),
         7 => day_seven::day_seven(input),
         8 => day_eight::day_eight(input),
+        9 => day_nine::day_nine(input),
         _ => println!("Unknown day"),
     }
 }
