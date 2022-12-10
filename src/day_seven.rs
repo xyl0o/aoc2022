@@ -24,19 +24,4 @@ pub fn part_two(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use indoc::indoc;
-
-    #[test]
-    fn test_part_one() {
-        todo!();
-        // let puzzle_input = indoc! {""};
-        // assert_eq!(part_one(puzzle_input), "");
-    }
-
-    #[test]
-    fn test_part_two() {
-        todo!();
-        // let puzzle_input = indoc! {""};
-        // assert_eq!(part_one(puzzle_input), "");
-    }
 }
