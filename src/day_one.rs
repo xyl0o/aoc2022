@@ -17,21 +17,17 @@ pub fn part_one(input: &str) -> u32 {
     let lines = input.lines();
 
     let mut most_cal: u32 = 0;
-    let mut most_cal_elf: u32 = 1;
 
     let mut curr_cal: u32 = 0;
-    let mut curr_cal_elf: u32 = 1;
 
     for line in lines {
         if line == "" {
 
             if curr_cal > most_cal {
                 most_cal = curr_cal;
-                most_cal_elf = curr_cal_elf;
             }
 
             curr_cal = 0;
-            curr_cal_elf += 1;
 
             continue;
         }
