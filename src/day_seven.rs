@@ -39,7 +39,30 @@ pub fn part_one(input: &str) -> u32 {
 }
 
 pub fn part_two(input: &str) -> u32 {
-    todo!();
+    lazy_static! {
+        static ref RE_CMD_RAW: Regex = Regex::new(r"(?m)^\$(?:[^\$])+").unwrap();
+    }
+
+    let cmds: Result<Vec<_>, _> = RE_CMD_RAW
+        .find_iter(input)
+        .map(|m| parse_cmd(m.as_str()))
+        .collect();
+
+    let tree = FsTree::construct(&cmds.unwrap()).unwrap();
+    let remaining = 70000000 - tree.total_size();
+    let to_free = 30000000 - remaining;
+
+    let smallest_viable: u32 = tree
+        .tree
+        .descendants()
+        .filter_map(|n| match &*n.borrow() {
+            FsObj::Directory { name: _, total } => Some(total.to_owned()),
+            FsObj::File { name: _, size: _ } => None,
+        })
+        .filter(|size| size >= &to_free)
+        .min()
+        .unwrap();
+    smallest_viable
 }
 
 fn parse_args(input: &str) -> Vec<&str> {
@@ -180,6 +203,13 @@ impl FsTree {
         }
 
         Ok(FsTree { tree: root })
+    }
+
+    fn total_size(&self) -> u32 {
+        match &*self.tree.borrow() {
+            FsObj::Directory { name: _, total } => total.to_owned(),
+            FsObj::File { name: _, size } => size.to_owned(),
+        }
     }
 
     fn propagate_size(node: &FsNode, size: u32) {
