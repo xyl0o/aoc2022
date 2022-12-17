@@ -9,36 +9,40 @@ pub fn both(input: &str) {
     );
 
     let part_two_solution = part_two(input);
-    println!(
-        "Number of overlapping assignments: {:?}",
-       part_two_solution
-    );
+    println!("Number of overlapping assignments: {:?}", part_two_solution);
 }
 
 pub fn part_one(input: &str) -> u32 {
-    input.lines().fold(0, |acc, line| {
-        if fully_contained(line) { acc + 1 } else { acc }
-    })
+    input.lines().fold(
+        0,
+        |acc, line| {
+            if fully_contained(line) {
+                acc + 1
+            } else {
+                acc
+            }
+        },
+    )
 }
 
 pub fn part_two(input: &str) -> u32 {
-    input.lines().fold(0, |acc, line| {
-        if overlapping(line) { acc + 1 } else { acc }
-    })
+    input
+        .lines()
+        .fold(0, |acc, line| if overlapping(line) { acc + 1 } else { acc })
 }
 
-fn construct_sets(assignment: &str) -> (HashSet<u32>, HashSet<u32>){
+fn construct_sets(assignment: &str) -> (HashSet<u32>, HashSet<u32>) {
     let (one, two) = assignment.split_once(',').unwrap();
 
     let (one_start, one_end) = one.split_once('-').unwrap();
-    let one_start : u32 = one_start.parse().unwrap();
-    let one_end : u32 = one_end.parse().unwrap();
-    let one : HashSet<u32> = HashSet::from_iter(one_start..one_end + 1);
+    let one_start: u32 = one_start.parse().unwrap();
+    let one_end: u32 = one_end.parse().unwrap();
+    let one: HashSet<u32> = HashSet::from_iter(one_start..one_end + 1);
 
     let (two_start, two_end) = two.split_once('-').unwrap();
-    let two_start : u32 = two_start.parse().unwrap();
-    let two_end : u32 = two_end.parse().unwrap();
-    let two : HashSet<u32> = HashSet::from_iter(two_start..two_end + 1);
+    let two_start: u32 = two_start.parse().unwrap();
+    let two_end: u32 = two_end.parse().unwrap();
+    let two: HashSet<u32> = HashSet::from_iter(two_start..two_end + 1);
 
     (one, two)
 }
@@ -56,8 +60,8 @@ fn overlapping(assignment: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use indoc::indoc;
     use super::*;
+    use indoc::indoc;
 
     #[test]
     fn test_fully_contained_false() {

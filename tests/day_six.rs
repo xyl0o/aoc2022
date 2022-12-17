@@ -1,5 +1,4 @@
-
-use aoc2022::day_six::{part_one,part_two};
+use aoc2022::day_six::{part_one, part_two};
 
 #[test]
 fn part_one_examples() {

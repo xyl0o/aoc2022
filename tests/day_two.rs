@@ -1,5 +1,4 @@
-
-use aoc2022::day_two::{part_one,part_two};
+use aoc2022::day_two::{part_one, part_two};
 use indoc::indoc;
 
 #[test]

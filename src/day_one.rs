@@ -1,16 +1,9 @@
-
 pub fn both(input: &str) {
     let part_one_solution = part_one(input);
-    println!(
-        "Elf with most cal: {:?}",
-        part_one_solution
-    );
+    println!("Elf with most cal: {:?}", part_one_solution);
 
     let part_two_solution = part_two(input);
-    println!(
-        "Sum of top three cal: {:?}",
-        part_two_solution
-    );
+    println!("Sum of top three cal: {:?}", part_two_solution);
 }
 
 pub fn part_one(input: &str) -> u32 {
@@ -22,7 +15,6 @@ pub fn part_one(input: &str) -> u32 {
 
     for line in lines {
         if line == "" {
-
             if curr_cal > most_cal {
                 most_cal = curr_cal;
             }
@@ -38,7 +30,6 @@ pub fn part_one(input: &str) -> u32 {
 
     most_cal
 }
-
 
 pub fn part_two(input: &str) -> u32 {
     let lines = input.lines();

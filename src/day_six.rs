@@ -3,16 +3,10 @@ use std::collections::HashSet;
 
 pub fn both(input: &str) {
     let part_one_solution = part_one(input);
-    println!(
-        "Part one: {:?}",
-        part_one_solution
-    );
+    println!("Part one: {:?}", part_one_solution);
 
     let part_two_solution = part_two(input);
-    println!(
-        "Part two: {:?}",
-        part_two_solution
-    );
+    println!("Part two: {:?}", part_two_solution);
 }
 
 pub fn part_one(input: &str) -> u32 {
@@ -36,7 +30,7 @@ fn packet_start_pos(stream: &str) -> Option<u32> {
 
 fn packet_start_pos_long(stream: &str, window_size: usize) -> Option<u32> {
     let mut stream_chars = stream.chars();
-    let mut window : Vec<char> = Vec::new();
+    let mut window: Vec<char> = Vec::new();
 
     while window.len() < (window_size - 1) {
         window.push(match stream_chars.next() {
@@ -49,7 +43,7 @@ fn packet_start_pos_long(stream: &str, window_size: usize) -> Option<u32> {
         window.push(c);
 
         if pairwise_distinct_long(&window) {
-            return Some((idx + window_size) as u32) // change when TryFrom is stable
+            return Some((idx + window_size) as u32); // change when TryFrom is stable
         }
         // quite inefficient
         window.remove(0);
@@ -136,17 +130,23 @@ mod tests {
     #[test]
     fn test_distinct_long_variable_length_true() {
         assert_eq!(pairwise_distinct_long(&vec!['a']), true);
-        assert_eq!(pairwise_distinct_long(
-            &vec!['x', 'y', 'z', 'a', 'b', 'c']), true);
+        assert_eq!(
+            pairwise_distinct_long(&vec!['x', 'y', 'z', 'a', 'b', 'c']),
+            true
+        );
     }
 
     #[test]
     fn test_distinct_long_variable_length_false() {
         assert_eq!(pairwise_distinct_long(&vec!['a', 'a']), false);
         assert_eq!(pairwise_distinct_long(&vec!['a', 'b']), true);
-        assert_eq!(pairwise_distinct_long(
-            &vec!['x', 'y', 'z', 'a', 'x', 'c']), false);
-        assert_eq!(pairwise_distinct_long(
-            &vec!['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']), false);
+        assert_eq!(
+            pairwise_distinct_long(&vec!['x', 'y', 'z', 'a', 'x', 'c']),
+            false
+        );
+        assert_eq!(
+            pairwise_distinct_long(&vec!['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']),
+            false
+        );
     }
 }

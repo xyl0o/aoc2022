@@ -1,18 +1,12 @@
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 
 pub fn both(input: &str) {
     let part_one_solution = part_one(input);
-    println!(
-        "stack top CrateMover9000: {:?}",
-       part_one_solution
-    );
+    println!("stack top CrateMover9000: {:?}", part_one_solution);
 
     let part_two_solution = part_two(input);
-    println!(
-        "stack top CrateMover9001: {:?}",
-        part_two_solution
-    );
+    println!("stack top CrateMover9001: {:?}", part_two_solution);
 }
 
 pub fn part_one(input: &str) -> String {
@@ -45,7 +39,7 @@ pub fn part_two(input: &str) -> String {
 
 #[derive(Debug)]
 struct CargoBay {
-    stacks: Vec<Vec<char>>
+    stacks: Vec<Vec<char>>,
 }
 
 impl CargoBay {
@@ -62,24 +56,22 @@ impl CargoBay {
             .skip(1)
             .peekable();
 
-        let first_line = lines.peek()
-            .expect("No stacks found in cargo bay");
+        let first_line = lines.peek().expect("No stacks found in cargo bay");
 
         // get array of whitespace between crates
-        let caps : Vec<String> = RE_FIRST
+        let caps: Vec<String> = RE_FIRST
             .captures_iter(&first_line)
             .map(|cap| cap[1].to_string())
             .collect();
 
         let mut cb = CargoBay {
-            stacks: vec![Vec::new(); caps.len()]
+            stacks: vec![Vec::new(); caps.len()],
         };
 
         // prepare regex with exact whitespace matching
-        let re_str = caps.iter().fold(
-            String::new(), |acc, cap| {
-                acc + &format!("(?:{}(?:   |\\[(\\w)\\])", cap)
-            });
+        let re_str = caps.iter().fold(String::new(), |acc, cap| {
+            acc + &format!("(?:{}(?:   |\\[(\\w)\\])", cap)
+        });
         let re_str = re_str + &")?".repeat(caps.len());
         let re = Regex::new(re_str.as_str()).unwrap();
 
@@ -93,8 +85,7 @@ impl CargoBay {
             // into the corresponding stack
             for idx in 0..cb.stacks.len() {
                 if let Some(cargo) = caps.get(idx + 1) {
-                    cb.stacks[idx].push(
-                        cargo.as_str().chars().next().unwrap());
+                    cb.stacks[idx].push(cargo.as_str().chars().next().unwrap());
                 }
             }
         }
@@ -107,10 +98,9 @@ impl CargoBay {
         //     |acc, stack| acc + &stack.last()
         //         .map_or("".to_owned(), |c| c.to_string())
         // )
-        self.stacks.iter().fold(
-            String::new(),
-            |acc, stack| acc + &stack.last().unwrap_or(&' ').to_string()
-        )
+        self.stacks.iter().fold(String::new(), |acc, stack| {
+            acc + &stack.last().unwrap_or(&' ').to_string()
+        })
     }
 }
 
@@ -119,21 +109,18 @@ trait CrateMover {
 
     fn parse_line(line: &str) -> (usize, usize, usize) {
         lazy_static! {
-            static ref RE_LINE: Regex = Regex::new(
-                r"move\s*(\d+)\s*from\s*(\d+)\s*to\s*(\d+)").unwrap();
+            static ref RE_LINE: Regex =
+                Regex::new(r"move\s*(\d+)\s*from\s*(\d+)\s*to\s*(\d+)").unwrap();
         }
 
         let caps = RE_LINE.captures(line).unwrap();
 
-        let amount : usize = caps.get(1).unwrap()
-            .as_str().parse().unwrap();
+        let amount: usize = caps.get(1).unwrap().as_str().parse().unwrap();
 
-        let source_stack : usize = caps.get(2).unwrap()
-            .as_str().parse().unwrap();
-        let target_stack : usize = caps.get(3).unwrap()
-            .as_str().parse().unwrap();
+        let source_stack: usize = caps.get(2).unwrap().as_str().parse().unwrap();
+        let target_stack: usize = caps.get(3).unwrap().as_str().parse().unwrap();
 
-        ( amount, source_stack, target_stack )
+        (amount, source_stack, target_stack)
     }
 }
 
@@ -144,8 +131,7 @@ impl CrateMover for CrateMover9000 {
         let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
 
         let source = &mut cb.stacks[source - 1];
-        let cargo : Vec<_> = source
-            .drain(source.len() - amount..).rev().collect();
+        let cargo: Vec<_> = source.drain(source.len() - amount..).rev().collect();
         cb.stacks[target - 1].extend(cargo);
     }
 }
@@ -157,8 +143,7 @@ impl CrateMover for CrateMover9001 {
         let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
 
         let source = &mut cb.stacks[source - 1];
-        let cargo : Vec<_> = source
-            .drain(source.len() - amount..).collect();
+        let cargo: Vec<_> = source.drain(source.len() - amount..).collect();
         cb.stacks[target - 1].extend(cargo);
     }
 }
@@ -197,30 +182,27 @@ mod tests {
 
     #[test]
     fn test_cargo_bay_stack_top() {
-        let cb = CargoBay { stacks: vec![
-            vec!['A', 'B'],
-            vec!['C']
-        ]};
+        let cb = CargoBay {
+            stacks: vec![vec!['A', 'B'], vec!['C']],
+        };
         assert_eq!(cb.stack_top(), "BC");
 
-        let cb = CargoBay { stacks: vec![vec!['Z']]};
+        let cb = CargoBay {
+            stacks: vec![vec!['Z']],
+        };
         assert_eq!(cb.stack_top(), "Z");
 
-        let cb = CargoBay { stacks: vec![
-            vec!['D'],
-            vec!['C', 'A'],
-            vec!['A', 'C'],
-            vec!['F']
-        ]};
+        let cb = CargoBay {
+            stacks: vec![vec!['D'], vec!['C', 'A'], vec!['A', 'C'], vec!['F']],
+        };
         assert_eq!(cb.stack_top(), "DACF");
     }
 
     #[test]
     fn test_movement_9000() {
-        let mut cb = CargoBay { stacks: vec![
-            vec!['A', 'B'],
-            vec!['C']
-        ]};
+        let mut cb = CargoBay {
+            stacks: vec![vec!['A', 'B'], vec!['C']],
+        };
         CrateMover9000::operate_crane(&mut cb, "move 1 from 1 to 2");
         assert_eq!(cb.stack_top(), "AB");
 
@@ -230,11 +212,9 @@ mod tests {
         CrateMover9000::operate_crane(&mut cb, "move 3 from 1 to 2");
         assert_eq!(cb.stack_top(), " A");
 
-        let mut cb = CargoBay { stacks: vec![
-            vec!['Z', 'N'],
-            vec!['M', 'C', 'D'],
-            vec!['P'],
-        ]};
+        let mut cb = CargoBay {
+            stacks: vec![vec!['Z', 'N'], vec!['M', 'C', 'D'], vec!['P']],
+        };
         CrateMover9000::operate_crane(&mut cb, "move 1 from 1 to 2");
         assert_eq!(cb.stack_top(), "ZNP");
 
@@ -244,10 +224,9 @@ mod tests {
 
     #[test]
     fn test_movement_9001_two_stacks_with_empty() {
-        let mut cb = CargoBay { stacks: vec![
-            vec!['A', 'B'],
-            vec!['C']
-        ]};
+        let mut cb = CargoBay {
+            stacks: vec![vec!['A', 'B'], vec!['C']],
+        };
         CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
         assert_eq!(cb.stack_top(), "AB");
 
@@ -260,11 +239,9 @@ mod tests {
 
     #[test]
     fn test_movement_9001_part_one() {
-        let mut cb = CargoBay { stacks: vec![
-            vec!['Z', 'N'],
-            vec!['M', 'C', 'D'],
-            vec!['P'],
-        ]};
+        let mut cb = CargoBay {
+            stacks: vec![vec!['Z', 'N'], vec!['M', 'C', 'D'], vec!['P']],
+        };
         CrateMover9001::operate_crane(&mut cb, "move 1 from 1 to 2");
         // Z
         // M C D N

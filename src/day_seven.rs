@@ -26,7 +26,9 @@ pub fn part_one(input: &str) -> u32 {
         .collect();
 
     let tree = FsTree::construct(&cmds.unwrap()).unwrap();
-    let sum: u32 = tree.tree.descendants()
+    let sum: u32 = tree
+        .tree
+        .descendants()
         .filter_map(|n| match &*n.borrow() {
             FsObj::Directory { name: _, total } => Some(total.to_owned()),
             FsObj::File { name: _, size: _ } => None,

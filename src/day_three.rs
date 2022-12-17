@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use itertools::Itertools;
+use std::collections::HashSet;
 use std::convert::TryInto;
 
 pub fn both(input: &str) {
@@ -10,12 +10,7 @@ pub fn both(input: &str) {
 pub fn part_one(input: &str) -> u32 {
     let prio_sum: u32 = input
         .lines()
-        .map(|l| {
-            priority(
-                Rucksack::new(l)
-                .first_duplicate()
-                .unwrap()
-            ) })
+        .map(|l| priority(Rucksack::new(l).first_duplicate().unwrap()))
         .sum();
 
     println!("Sum of prios of duplicates: {:?}", prio_sum);
@@ -25,11 +20,12 @@ pub fn part_one(input: &str) -> u32 {
 pub fn part_two(input: &str) -> u32 {
     let mut badge_prio_sum = 0;
     for group in input.lines().chunks(3).into_iter() {
-        let eg = ElfGroup { elves: group
-            .map(|l| { Rucksack::new(l) })
-            .collect::<Vec<Rucksack>>()
-            .try_into()
-            .unwrap()
+        let eg = ElfGroup {
+            elves: group
+                .map(|l| Rucksack::new(l))
+                .collect::<Vec<Rucksack>>()
+                .try_into()
+                .unwrap(),
         };
         badge_prio_sum += priority(eg.badge().unwrap());
     }
@@ -56,7 +52,7 @@ impl Rucksack {
         }
     }
 
-    pub fn first_duplicate(&self) -> Option<char>{
+    pub fn first_duplicate(&self) -> Option<char> {
         let mut chars = HashSet::new();
 
         chars.extend(self.first_comp.chars());
@@ -84,12 +80,8 @@ struct ElfGroup {
 }
 
 impl ElfGroup {
-    pub fn badge(&self) -> Option<char>{
-        let mut sets = [
-            HashSet::new(),
-            HashSet::new(),
-            HashSet::new(),
-        ];
+    pub fn badge(&self) -> Option<char> {
+        let mut sets = [HashSet::new(), HashSet::new(), HashSet::new()];
 
         sets[0].extend(self.elves[0].first_comp.chars());
         sets[0].extend(self.elves[0].second_comp.chars());
@@ -100,33 +92,25 @@ impl ElfGroup {
         sets[2].extend(self.elves[2].first_comp.chars());
         sets[2].extend(self.elves[2].second_comp.chars());
 
-        let tmp : HashSet<char> = sets[0]
-            .intersection(&sets[1])
-            .copied()
-            .collect();
+        let tmp: HashSet<char> = sets[0].intersection(&sets[1]).copied().collect();
 
-        let tmp : HashSet<char> = tmp
-            .intersection(&sets[2])
-            .copied()
-            .collect();
+        let tmp: HashSet<char> = tmp.intersection(&sets[2]).copied().collect();
 
         tmp.iter().next().copied()
     }
 }
 
-fn priority(c: char) -> u32{
-
+fn priority(c: char) -> u32 {
     if c.is_ascii_lowercase() {
-        return (c as u32) - 97 + 1
+        return (c as u32) - 97 + 1;
     }
 
     if c.is_ascii_uppercase() {
-        return (c as u32) - 65 + 27
+        return (c as u32) - 65 + 27;
     }
 
     0
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -184,29 +168,41 @@ mod tests {
 
     #[test]
     fn test_badge() {
-        let badge = ElfGroup { elves: [
-            Rucksack::new("aixB"),
-            Rucksack::new("ciyD"),
-            Rucksack::new("eizF"),
-        ]}.badge().unwrap();
+        let badge = ElfGroup {
+            elves: [
+                Rucksack::new("aixB"),
+                Rucksack::new("ciyD"),
+                Rucksack::new("eizF"),
+            ],
+        }
+        .badge()
+        .unwrap();
         let badge_prio = priority(badge);
         assert_eq!(badge, 'i');
         assert_eq!(badge_prio, 9);
 
-        let badge = ElfGroup { elves: [
-            Rucksack::new("vJrwpWtwJgWrhcsFMMfFFhFp"),
-            Rucksack::new("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"),
-            Rucksack::new("PmmdzqPrVvPwwTWBwg"),
-        ]}.badge().unwrap();
+        let badge = ElfGroup {
+            elves: [
+                Rucksack::new("vJrwpWtwJgWrhcsFMMfFFhFp"),
+                Rucksack::new("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"),
+                Rucksack::new("PmmdzqPrVvPwwTWBwg"),
+            ],
+        }
+        .badge()
+        .unwrap();
         let badge_prio = priority(badge);
         assert_eq!(badge, 'r');
         assert_eq!(badge_prio, 18);
 
-        let badge = ElfGroup { elves: [
-            Rucksack::new("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn"),
-            Rucksack::new("ttgJtRGJQctTZtZT"),
-            Rucksack::new("CrZsJsPPZsGzwwsLwLmpwMDw"),
-        ]}.badge().unwrap();
+        let badge = ElfGroup {
+            elves: [
+                Rucksack::new("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn"),
+                Rucksack::new("ttgJtRGJQctTZtZT"),
+                Rucksack::new("CrZsJsPPZsGzwwsLwLmpwMDw"),
+            ],
+        }
+        .badge()
+        .unwrap();
         let badge_prio = priority(badge);
         assert_eq!(badge, 'Z');
         assert_eq!(badge_prio, 52);
