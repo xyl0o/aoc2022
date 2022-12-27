@@ -1,4 +1,5 @@
-use ndarray::{Array, Array1, Array2};
+use ndarray::{s, Array, Array1, Array2};
+use std::cmp;
 
 pub fn both(input: &str) {
     let part_one_solution = part_one(input);
@@ -12,6 +13,11 @@ pub fn part_one(input: &str) -> u32 {
     let treemap = parse_map(input);
     let vismap = gen_vismap(&treemap);
     vismap.mapv(|num| if num == 0 { 0 } else { 1 }).sum()
+}
+
+pub fn part_two(input: &str) -> u32 {
+    let treemap = parse_map(input);
+    max_scenic_score(&treemap)
 }
 
 fn parse_map(input: &str) -> Array2<u32> {
@@ -96,15 +102,49 @@ fn gen_vismap(treemap: &Array2<u32>) -> Array2<u32> {
     vismap
 }
 
-pub fn part_two(input: &str) -> String {
-    todo!();
+fn max_scenic_score(treemap: &Array2<u32>) -> u32 {
+    let rows = treemap.nrows();
+    let cols = treemap.ncols();
+
+    treemap
+        .indexed_iter()
+        .map(|((row, col), height)| {
+            [
+                treemap.slice(s![row, 0..col;-1]),
+                treemap.slice(s![row, (col + 1)..cols]),
+                treemap.slice(s![0..row;-1, col]),
+                treemap.slice(s![(row + 1)..rows, col]),
+            ]
+            .iter()
+            .map(|slice| {
+                // if slice.len() == 0 {
+                //     0
+                // } else {
+                //     slice.iter().take_while(|x| *x < height).count() + 1
+                // }
+                let mut view = 0;
+                for tree in slice.iter() {
+                    view += 1;
+                    if tree >= height {
+                        break;
+                    }
+                }
+                view
+            })
+            .reduce(|acc, x| acc * x)
+            .unwrap_or(0)
+        })
+        .reduce(|acc, x| cmp::max(acc, x))
+        .expect("Field empty")
+        .try_into()
+        .unwrap()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::{arr2};
     use indoc::indoc;
+    use ndarray::arr2;
 
     #[test]
     fn read_input() {
@@ -171,5 +211,32 @@ mod tests {
                 [2, 2, 1, 4, 2],
             ])
         );
+    }
+
+    #[test]
+    fn most_scenic() {
+        let map = arr2(&[
+            [3, 0, 3, 7, 3],
+            [2, 5, 5, 1, 2],
+            [6, 5, 3, 3, 2],
+            [3, 3, 5, 4, 9],
+            [3, 5, 3, 9, 0],
+        ]);
+        let most_scenic = max_scenic_score(&map);
+        assert_eq!(most_scenic, 8);
+    }
+
+    #[test]
+    fn most_scenic_zero() {
+        let map = arr2(&[[3, 0, 3, 7], [2, 5, 5, 1]]);
+        let most_scenic = max_scenic_score(&map);
+        assert_eq!(most_scenic, 0);
+    }
+
+    #[test]
+    fn most_scenic_one() {
+        let map = arr2(&[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]);
+        let most_scenic = max_scenic_score(&map);
+        assert_eq!(most_scenic, 1);
     }
 }
