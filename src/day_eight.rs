@@ -33,48 +33,18 @@ fn parse_map(input: &str) -> Array2<u32> {
 fn gen_vismap(treemap: &Array2<u32>) -> Array2<u32> {
     let mut vismap: Array2<u32> = Array::zeros(treemap.raw_dim());
 
-    let shape = treemap.shape();
-    let cols = shape[0];
-    let rows = shape[1];
-
-    for col in 0..cols {
-        // let col_view = treemap.index_axis(Axis(0), col);
-
-        let mut min_height = -1;
-        // for (row, tree) in col_view.indexed_iter() {
-        for row in 0..rows {
-            let height = treemap[[col, row]] as i32;
-            if height > min_height {
-                vismap[[col, row]] += 1;
-                min_height = height;
-            }
-            if height >= 9 {
-                break;
-            }
-        }
-
-        let mut min_height = -1;
-        for row in (0..rows).rev() {
-            let height = treemap[[col, row]] as i32;
-            if height > min_height {
-                vismap[[col, row]] += 1;
-                min_height = height;
-            }
-            if height >= 9 {
-                break;
-            }
-        }
-    }
+    let rows = treemap.nrows();
+    let cols = treemap.ncols();
 
     for row in 0..rows {
         // let row_view = treemap.index_axis(Axis(0), row);
 
         let mut min_height = -1;
-        // for (col, height) in row_view.indexed_iter() {
+        // for (row, tree) in row_view.indexed_iter() {
         for col in 0..cols {
-            let height = treemap[[col, row]] as i32;
+            let height = treemap[[row, col]] as i32;
             if height > min_height {
-                vismap[[col, row]] += 1;
+                vismap[[row, col]] += 1;
                 min_height = height;
             }
             if height >= 9 {
@@ -84,9 +54,38 @@ fn gen_vismap(treemap: &Array2<u32>) -> Array2<u32> {
 
         let mut min_height = -1;
         for col in (0..cols).rev() {
-            let height = treemap[[col, row]] as i32;
+            let height = treemap[[row, col]] as i32;
             if height > min_height {
-                vismap[[col, row]] += 1;
+                vismap[[row, col]] += 1;
+                min_height = height;
+            }
+            if height >= 9 {
+                break;
+            }
+        }
+    }
+
+    for col in 0..cols {
+        // let col_view = treemap.index_axis(Axis(0), col);
+
+        let mut min_height = -1;
+        // for (row, height) in col_view.indexed_iter() {
+        for row in 0..rows {
+            let height = treemap[[row, col]] as i32;
+            if height > min_height {
+                vismap[[row, col]] += 1;
+                min_height = height;
+            }
+            if height >= 9 {
+                break;
+            }
+        }
+
+        let mut min_height = -1;
+        for row in (0..rows).rev() {
+            let height = treemap[[row, col]] as i32;
+            if height > min_height {
+                vismap[[row, col]] += 1;
                 min_height = height;
             }
             if height >= 9 {
