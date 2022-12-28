@@ -61,7 +61,6 @@ fn overlapping(assignment: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use indoc::indoc;
 
     #[test]
     fn test_fully_contained_false() {
