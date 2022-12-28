@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::{HashMap, HashSet},
+    fmt,
     io::{Error, ErrorKind},
     str::FromStr,
 };
@@ -73,7 +74,46 @@ struct Field {
 impl Default for Field {
     fn default() -> Self {
         Field::new(2)
+    }
+}
+
+impl fmt::Display for Field {
+    //     ---
+    // fld 321012345678901
+    // str 012345678901234 str  fld  neg +dif +min
+    //     3...........4..  0    4   -4    2    0
+    //  d  ...............  1    3   -3    3    1
+    //  i  ...............  2    2   -2    4    2
+    //  f  ....H1.........  3    1   -1    5    3
+    //     ...s...........  4    0    0    6    4
+    //  y  ...............  5   -1    1    7    5
+    //     .2.............  6   -2    2    8    6
+    //          dif x
+    //
+    // field_to_string:
+    //   str_x = fld_x - min_x
+    //   str_y = dif_y + min_y - fld_y
+    //
+    //   pos = str_x + str_y * dif_x
+    //
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let min_x = self.rope.iter().map(|p| p.x).min().unwrap();
+        let max_x = self.rope.iter().map(|p| p.x).max().unwrap();
+        let min_y = self.rope.iter().map(|p| p.y).min().unwrap();
+        let max_y = self.rope.iter().map(|p| p.y).max().unwrap();
+        let delta_x = max_x - min_x;
+        let delta_y = max_y - min_y;
+
+        let line = ".".repeat((delta_x + 1).try_into().unwrap()) + "\n";
+        let mut field = line.repeat((delta_y + 1).try_into().unwrap());
+
+        for r in self.rope.iter().rev() {
+            let str_x = r.x - min_x;
+            let str_y = delta_y + min_y - r.y;
+            let str_idx: usize = (str_x + str_y * (delta_x + 2)).try_into().unwrap();
+            field.replace_range(str_idx..(str_idx + 1), "x");
         }
+        write!(f, "{}", field.trim())
     }
 }
 
@@ -345,5 +385,85 @@ mod tests {
 
         assert_eq!(field.rope[0], Point { x: 2, y: 2 });
         assert_eq!(field.rope[1], Point { x: 1, y: 2 });
+    }
+
+    #[test]
+    fn field_to_string() {
+        let field = Field {
+            rope: vec![Point { x: 0, y: 0 }],
+            visited: HashSet::new(),
+        };
+        assert_eq!(field.to_string(), "x");
+
+        let field = Field {
+            rope: vec![Point { x: 1, y: 1 }, Point { x: 0, y: 0 }],
+            visited: HashSet::new(),
+        };
+        assert_eq!(
+            field.to_string(),
+            indoc! {"
+            .x
+            x.
+        "}
+            .trim()
+        );
+
+        let field = Field {
+            rope: vec![Point { x: 5, y: 0 }, Point { x: 0, y: 0 }],
+            visited: HashSet::new(),
+        };
+        assert_eq!(
+            field.to_string(),
+            indoc! {"
+            x....x
+        "}
+            .trim()
+        );
+
+        let field = Field {
+            rope: vec![
+                Point { x: -2, y: 0 },
+                Point { x: 0, y: 1 },
+                Point { x: 3, y: -1 },
+                Point { x: 0, y: 0 },
+            ],
+            visited: HashSet::new(),
+        };
+        assert_eq!(
+            field.to_string(),
+            indoc! {"
+            ..x...
+            x.x...
+            .....x
+        "}
+            .trim()
+        );
+
+        let field = Field {
+            rope: vec![
+                Point { x: 4, y: 4 },
+                Point { x: 4, y: 3 },
+                Point { x: 4, y: 2 },
+                Point { x: 3, y: 2 },
+                Point { x: 2, y: 2 },
+                Point { x: 1, y: 1 },
+                Point { x: 0, y: 0 },
+                Point { x: 0, y: 0 },
+                Point { x: 0, y: 0 },
+                Point { x: 0, y: 0 },
+            ],
+            visited: HashSet::new(),
+        };
+        assert_eq!(
+            field.to_string(),
+            indoc! {"
+            ....x
+            ....x
+            ..xxx
+            .x...
+            x....
+        "}
+            .trim()
+        );
     }
 }
