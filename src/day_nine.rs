@@ -27,7 +27,14 @@ pub fn part_one(input: &str) -> u32 {
 }
 
 pub fn part_two(input: &str) -> u32 {
-    todo!();
+    let mut field = Field::new(10);
+    let movements = parse_input(input);
+
+    for ref m in movements {
+        field.apply_move(m);
+    }
+
+    field.visited.len().try_into().unwrap()
 }
 
 #[derive(PartialEq, Eq, Debug)]
