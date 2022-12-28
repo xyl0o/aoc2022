@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
+    collections::{HashMap, HashSet},
     io::{Error, ErrorKind},
     str::FromStr,
 };
@@ -35,7 +36,7 @@ struct Move {
     distance: u32,
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Hash, Copy, Clone)]
 struct Point {
     x: i32,
     y: i32,
@@ -60,6 +61,7 @@ impl Default for Point {
 struct Field {
     head: Point,
     tail: Point,
+    visited: HashSet<Point>,
 }
 
 impl Default for Field {
@@ -67,6 +69,7 @@ impl Default for Field {
         Field {
             head: Point::default(),
             tail: Point::default(),
+            visited: HashSet::from([Point::default()]),
         }
     }
 }
@@ -90,24 +93,24 @@ impl Field {
             return;
         }
 
+        self.tail = self.head;
+
         match direction {
             MoveDirection::Up => {
-                self.tail.y += 1;
-                self.tail.x = self.head.x;
+                self.tail.y -= 1;
             }
             MoveDirection::Right => {
-                self.tail.x += 1;
-                self.tail.y = self.head.y;
+                self.tail.x -= 1;
             }
             MoveDirection::Down => {
-                self.tail.y -= 1;
-                self.tail.x = self.head.x;
+                self.tail.y += 1;
             }
             MoveDirection::Left => {
-                self.tail.x -= 1;
-                self.tail.y = self.head.y;
+                self.tail.x += 1;
             }
         }
+
+        self.visited.insert(self.tail);
     }
 }
 
@@ -121,17 +124,15 @@ impl FromStr for Move {
 
         let caps = RE.captures(s).ok_or(Self::Err::new(
             ErrorKind::InvalidData,
-            "Couldn't parse output",
+            "Couldn't parse move",
         ))?;
 
         // We now these groups are there bc. the regex matches
         let direction = caps.get(1).unwrap().as_str();
-        let distance = caps
-            .get(2)
-            .unwrap()
-            .as_str()
-            .parse()
-            .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Couldn't parse output"))?;
+        let distance =
+            caps.get(2).unwrap().as_str().parse().map_err(|_| {
+                Self::Err::new(ErrorKind::InvalidData, "Couldn't parse move distance")
+            })?;
 
         Ok(Self {
             direction: match direction {
@@ -142,7 +143,7 @@ impl FromStr for Move {
                 _ => {
                     return Err(Self::Err::new(
                         ErrorKind::InvalidData,
-                        "Couldn't parse output",
+                        "Couldn't parse move direction",
                     ))
                 }
             },
