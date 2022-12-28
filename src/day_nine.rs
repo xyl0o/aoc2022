@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     fmt,
     io::{Error, ErrorKind},
     str::FromStr,
@@ -131,6 +131,7 @@ impl Field {
             visited: HashSet::from([Point::default()]),
         }
     }
+
     fn apply_move(&mut self, m: &Move) {
         for _ in 0..m.distance {
             self.single_step(&m.direction);
