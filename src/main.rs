@@ -32,6 +32,7 @@ fn single_day(day: u32, file_path: &str) {
         7 => aoc2022::day_seven::both(&input),
         8 => aoc2022::day_eight::both(&input),
         9 => aoc2022::day_nine::both(&input),
+        10 => aoc2022::day_ten::both(&input),
         _ => println!("Unknown day"),
     }
 }
