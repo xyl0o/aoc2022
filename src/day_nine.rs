@@ -66,22 +66,24 @@ impl Default for Point {
 
 #[derive(PartialEq, Eq, Debug)]
 struct Field {
-    head: Point,
-    tail: Point,
+    rope: Vec<Point>,
     visited: HashSet<Point>,
 }
 
 impl Default for Field {
     fn default() -> Self {
-        Field {
-            head: Point::default(),
-            tail: Point::default(),
-            visited: HashSet::from([Point::default()]),
+        Field::new(2)
         }
     }
 }
 
 impl Field {
+    fn new(rope_len: usize) -> Self {
+        Field {
+            rope: vec![Point::default(); rope_len],
+            visited: HashSet::from([Point::default()]),
+        }
+    }
     fn apply_move(&mut self, m: &Move) {
         for _ in 0..m.distance {
             self.single_step(&m.direction);
@@ -90,34 +92,90 @@ impl Field {
 
     fn single_step(&mut self, direction: &MoveDirection) {
         match direction {
-            MoveDirection::Up => self.head.y += 1,
-            MoveDirection::Right => self.head.x += 1,
-            MoveDirection::Down => self.head.y -= 1,
-            MoveDirection::Left => self.head.x -= 1,
+            MoveDirection::Up => self.rope[0].y += 1,
+            MoveDirection::Right => self.rope[0].x += 1,
+            MoveDirection::Down => self.rope[0].y -= 1,
+            MoveDirection::Left => self.rope[0].x -= 1,
         }
 
-        if self.head.is_moore(&self.tail) {
-            return;
+        let mut prev = self.rope[0];
+
+        for r in self.rope.iter_mut().skip(1) {
+            if !prev.is_moore(&r) {
+                //   -21012
+                //  2 ppppp
+                //  1 p...p
+                //  0 p.r.p
+                // -1 p...p
+                // -2 ppppp
+                // corners are only possible when rope.len() > 2
+                match prev {
+                    Point { x, y } if x == r.x + 0 && y == r.y + 2 => {
+                        r.y += 1;
+                    }
+                    Point { x, y } if x == r.x + 1 && y == r.y + 2 => {
+                        r.y += 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 2 && y == r.y + 2 => {
+                        r.y += 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 2 && y == r.y + 1 => {
+                        r.y += 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 2 && y == r.y + 0 => {
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 2 && y == r.y - 1 => {
+                        r.y -= 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 2 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 1 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x += 1;
+                    }
+                    Point { x, y } if x == r.x + 0 && y == r.y - 2 => {
+                        r.y -= 1;
+                    }
+                    Point { x, y } if x == r.x - 1 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 2 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 2 && y == r.y - 1 => {
+                        r.y -= 1;
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 2 && y == r.y + 0 => {
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 2 && y == r.y + 1 => {
+                        r.y += 1;
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 2 && y == r.y + 2 => {
+                        r.y += 1;
+                        r.x -= 1;
+                    }
+                    Point { x, y } if x == r.x - 1 && y == r.y + 2 => {
+                        r.y += 1;
+                        r.x -= 1;
+                    }
+                    _ => unreachable!("Prev to far away"),
+                };
+            }
+            prev = *r;
         }
-
-        self.tail = self.head;
-
-        match direction {
-            MoveDirection::Up => {
-                self.tail.y -= 1;
-            }
-            MoveDirection::Right => {
-                self.tail.x -= 1;
-            }
-            MoveDirection::Down => {
-                self.tail.y += 1;
-            }
-            MoveDirection::Left => {
-                self.tail.x += 1;
-            }
-        }
-
-        self.visited.insert(self.tail);
+        self.visited.insert(*self.rope.last().unwrap());
     }
 }
 
@@ -228,43 +286,43 @@ mod tests {
             direction: MoveDirection::Right,
             distance: 4,
         });
-        assert_eq!(field.head, Point { x: 4, y: 0 });
-        assert_eq!(field.tail, Point { x: 3, y: 0 });
+        assert_eq!(field.rope[0], Point { x: 4, y: 0 });
+        assert_eq!(field.rope[1], Point { x: 3, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.head, Point { x: 4, y: 1 });
-        assert_eq!(field.tail, Point { x: 3, y: 0 });
+        assert_eq!(field.rope[0], Point { x: 4, y: 1 });
+        assert_eq!(field.rope[1], Point { x: 3, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.head, Point { x: 4, y: 2 });
-        assert_eq!(field.tail, Point { x: 4, y: 1 });
+        assert_eq!(field.rope[0], Point { x: 4, y: 2 });
+        assert_eq!(field.rope[1], Point { x: 4, y: 1 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Left,
             distance: 2,
         });
-        assert_eq!(field.head, Point { x: 2, y: 2 });
-        assert_eq!(field.tail, Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point { x: 2, y: 2 });
+        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.head, Point { x: 2, y: 3 });
-        assert_eq!(field.tail, Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point { x: 2, y: 3 });
+        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Down,
             distance: 2,
         });
-        assert_eq!(field.head, Point { x: 2, y: 1 });
-        assert_eq!(field.tail, Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point { x: 2, y: 1 });
+        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
     }
 
     #[test]
@@ -285,7 +343,7 @@ mod tests {
             field.apply_move(m);
         }
 
-        assert_eq!(field.head, Point { x: 2, y: 2 });
-        assert_eq!(field.tail, Point { x: 1, y: 2 });
+        assert_eq!(field.rope[0], Point { x: 2, y: 2 });
+        assert_eq!(field.rope[1], Point { x: 1, y: 2 });
     }
 }
