@@ -11,7 +11,8 @@ pub fn both(input: &str) {
     println!("Part one: {:?}", part_one_solution);
 
     let part_two_solution = part_two(input);
-    println!("Part two: {:?}", part_two_solution);
+    println!("Part two:");
+    part_two_solution.lines().for_each(|l| println!("{}", l));
 }
 
 pub fn part_one(input: &str) -> i32 {
@@ -31,8 +32,12 @@ pub fn part_one(input: &str) -> i32 {
     signal_strengths
 }
 
-pub fn part_two(input: &str) -> u32 {
-    todo!()
+pub fn part_two(input: &str) -> String {
+    let program = parse_program(input);
+    let mut cpu = CPU::default();
+    cpu.load(&program);
+
+    crt(&mut cpu)
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -135,6 +140,25 @@ impl Default for CPU {
             current_cycles: 0,
         }
     }
+}
+
+fn crt(cpu: &mut CPU) -> String {
+    let mut output = String::new();
+    let lines = [40, 80, 120, 160, 200, 240];
+
+    for _ in lines {
+        for xpos in 0..40 {
+            cpu.tick();
+
+            if cpu.reg_x >= xpos - 1 && cpu.reg_x <= xpos + 1 {
+                output.push('#');
+            } else {
+                output.push('.');
+            }
+        }
+        output.push('\n');
+    }
+    output
 }
 
 #[cfg(test)]
