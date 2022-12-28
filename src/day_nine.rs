@@ -15,7 +15,14 @@ pub fn both(input: &str) {
 }
 
 pub fn part_one(input: &str) -> u32 {
-    0
+    let mut field = Field::default();
+    let movements = parse_input(input);
+
+    for ref m in movements {
+        field.apply_move(m);
+    }
+
+    field.visited.len().try_into().unwrap()
 }
 
 pub fn part_two(input: &str) -> u32 {
