@@ -1,3 +1,4 @@
+use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -203,6 +204,46 @@ impl Monkey {
     }
 }
 
+struct KeepAway {
+    monkeys: IndexMap<MonkeyId, Monkey>,
+}
+
+impl KeepAway {
+    fn new(monkeys: impl IntoIterator<Item = Monkey>) -> Self {
+        let mut idxmap = IndexMap::new();
+
+        for monkey in monkeys {
+            idxmap.insert(monkey.id, monkey);
+        }
+
+        Self {
+            monkeys: idxmap,
+        }
+    }
+    /// The monkeys take turns inspecting and throwing items. On a single
+    /// monkey's turn, it inspects and throws all of the items it is holding
+    /// one at a time and in the order listed. Monkey 0 goes first,
+    /// then monkey 1, and so on until each monkey has had one turn.
+    /// The process of each monkey taking a single turn is called a round.
+    fn round(&mut self) {
+        let keys: Vec<_> = self.monkeys.keys().cloned().collect();
+        for monkey_id in keys {
+            let monkey = self.monkeys.get_mut(&monkey_id).unwrap();
+
+            // collect so monkey drops and second mut borrow is possible
+            let thrown: Vec<(MonkeyId, WorryLevel)> =
+                std::iter::from_fn(|| monkey.inspect_and_throw()).collect();
+
+            for (monkey_id, item) in thrown {
+                self.monkeys
+                    .get_mut(&monkey_id)
+                    .expect("Invalid target monkey")
+                    .catch(item);
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -349,5 +390,56 @@ mod tests {
         //   Current worry level is not divisible by 13.
         //   Item with worry level 1200 is thrown to monkey 3.
         assert_eq!(monkey.inspect_and_throw(), Some((3, 1200)));
+    }
+
+    #[test]
+    fn keep_away_round() {
+        let mut ka = KeepAway::new(
+            [
+                indoc! {"
+                    Monkey 0:
+                      Starting items: 79, 98
+                      Operation: new = old * 19
+                      Test: divisible by 23
+                        If true: throw to monkey 2
+                        If false: throw to monkey 3"},
+                indoc! {"
+                    Monkey 1:
+                      Starting items: 54, 65, 75, 74
+                      Operation: new = old + 6
+                      Test: divisible by 19
+                        If true: throw to monkey 2
+                        If false: throw to monkey 0"},
+                indoc! {"
+                    Monkey 2:
+                      Starting items: 79, 60, 97
+                      Operation: new = old * old
+                      Test: divisible by 13
+                        If true: throw to monkey 1
+                        If false: throw to monkey 3"},
+                indoc! {"
+                    Monkey 3:
+                      Starting items: 74
+                      Operation: new = old + 3
+                      Test: divisible by 17
+                        If true: throw to monkey 0
+                        If false: throw to monkey 1"},
+            ]
+            .iter()
+            .map(|m| m.parse().unwrap())
+            .collect::<Vec<_>>(),
+        );
+
+        ka.round();
+        assert_eq!(ka.monkeys[0].items, vec![20, 23, 27, 26]);
+        assert_eq!(ka.monkeys[1].items, vec![2080, 25, 167, 207, 401, 1046]);
+        assert_eq!(ka.monkeys[2].items, vec![]);
+        assert_eq!(ka.monkeys[3].items, vec![]);
+
+        ka.round();
+        assert_eq!(ka.monkeys[0].items, vec![695, 10, 71, 135, 350]);
+        assert_eq!(ka.monkeys[1].items, vec![43, 49, 58, 55, 362]);
+        assert_eq!(ka.monkeys[2].items, vec![]);
+        assert_eq!(ka.monkeys[3].items, vec![]);
     }
 }
