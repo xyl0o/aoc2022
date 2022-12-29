@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -16,17 +17,39 @@ pub fn both(input: &str) {
 }
 
 pub fn part_one(input: &str) -> u32 {
-    todo!();
+    let monkeys: Vec<Monkey> = input
+        .split("\n\n")
+        .map(|split| split.parse())
+        .collect::<Result<_, _>>()
+        .unwrap();
+
+    let mut ka = KeepAway::new(monkeys);
+
+    for _ in 0..20 {
+        ka.round();
+    }
+
+    ka.inspections
+        .values()
+        .sorted()
+        .rev()
+        .take(2)
+        .copied()
+        .reduce(|acc, x| acc * x)
+        .unwrap()
 }
 
 pub fn part_two(input: &str) -> String {
     todo!();
 }
 
+type WorryLevel = u64;
+type MonkeyId = u32;
+
 #[derive(PartialEq, Debug)]
 enum OpArg {
     Old,
-    Value(u32),
+    Value(WorryLevel),
 }
 
 #[derive(PartialEq, Debug)]
@@ -42,17 +65,15 @@ struct InfixOp {
     right: OpArg,
 }
 
-type WorryLevel = u32;
-type MonkeyId = u32;
 
 #[derive(PartialEq, Debug)]
 struct Monkey {
     id: MonkeyId,
     items: VecDeque<WorryLevel>,
     op: InfixOp,
-    test_div: u32,
-    true_target: u32,
-    false_target: u32,
+    test_div: WorryLevel,
+    true_target: MonkeyId,
+    false_target: MonkeyId,
 }
 
 impl FromStr for Monkey {
@@ -84,7 +105,7 @@ impl FromStr for Monkey {
         ))?;
 
         // We now id is there bc. the regex matches
-        let id: u32 = caps["id"]
+        let id = caps["id"]
             .parse()
             .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid monkey id"))?;
 
@@ -121,17 +142,17 @@ impl FromStr for Monkey {
         }?;
 
         // We now divtest is there bc. the regex matches
-        let test_div: u32 = caps["divtest"]
+        let test_div = caps["divtest"]
             .parse()
             .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid divisor"))?;
 
         // We now truetgt is there bc. the regex matches
-        let true_target: u32 = caps["truetgt"]
+        let true_target = caps["truetgt"]
             .parse()
             .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid true target monkey id"))?;
 
         // We now falsetgt is there bc. the regex matches
-        let false_target: u32 = caps["falsetgt"].parse().map_err(|_| {
+        let false_target = caps["falsetgt"].parse().map_err(|_| {
             Self::Err::new(ErrorKind::InvalidData, "Invalid false target monkey id")
         })?;
 
