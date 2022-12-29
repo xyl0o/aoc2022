@@ -2,7 +2,7 @@ use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    collections::VecDeque,
+    collections::{HashMap, VecDeque},
     io::{Error, ErrorKind},
     str::FromStr,
 };
@@ -206,6 +206,7 @@ impl Monkey {
 
 struct KeepAway {
     monkeys: IndexMap<MonkeyId, Monkey>,
+    inspections: HashMap<MonkeyId, u32>,
 }
 
 impl KeepAway {
@@ -218,6 +219,7 @@ impl KeepAway {
 
         Self {
             monkeys: idxmap,
+            inspections: HashMap::default(),
         }
     }
     /// The monkeys take turns inspecting and throwing items. On a single
@@ -233,6 +235,12 @@ impl KeepAway {
             // collect so monkey drops and second mut borrow is possible
             let thrown: Vec<(MonkeyId, WorryLevel)> =
                 std::iter::from_fn(|| monkey.inspect_and_throw()).collect();
+
+            let thrown_len = thrown.len() as u32;
+            self.inspections
+                .entry(monkey_id)
+                .and_modify(|e| *e += thrown_len)
+                .or_insert(thrown_len);
 
             for (monkey_id, item) in thrown {
                 self.monkeys
@@ -441,5 +449,52 @@ mod tests {
         assert_eq!(ka.monkeys[1].items, vec![43, 49, 58, 55, 362]);
         assert_eq!(ka.monkeys[2].items, vec![]);
         assert_eq!(ka.monkeys[3].items, vec![]);
+    }
+
+    #[test]
+    fn keep_away_inspections() {
+        let mut ka = KeepAway::new(
+            [
+                indoc! {"
+                    Monkey 0:
+                      Starting items: 79, 98
+                      Operation: new = old * 19
+                      Test: divisible by 23
+                        If true: throw to monkey 2
+                        If false: throw to monkey 3"},
+                indoc! {"
+                    Monkey 1:
+                      Starting items: 54, 65, 75, 74
+                      Operation: new = old + 6
+                      Test: divisible by 19
+                        If true: throw to monkey 2
+                        If false: throw to monkey 0"},
+                indoc! {"
+                    Monkey 2:
+                      Starting items: 79, 60, 97
+                      Operation: new = old * old
+                      Test: divisible by 13
+                        If true: throw to monkey 1
+                        If false: throw to monkey 3"},
+                indoc! {"
+                    Monkey 3:
+                      Starting items: 74
+                      Operation: new = old + 3
+                      Test: divisible by 17
+                        If true: throw to monkey 0
+                        If false: throw to monkey 1"},
+            ]
+            .iter()
+            .map(|m| m.parse().unwrap())
+            .collect::<Vec<_>>(),
+        );
+
+        for _ in 0..20 {
+            ka.round();
+        }
+        assert_eq!(ka.inspections[&0], 101);
+        assert_eq!(ka.inspections[&1], 95);
+        assert_eq!(ka.inspections[&2], 7);
+        assert_eq!(ka.inspections[&3], 105);
     }
 }
