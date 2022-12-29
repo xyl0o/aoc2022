@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
+    collections::VecDeque,
     io::{Error, ErrorKind},
     str::FromStr,
 };
@@ -40,19 +41,18 @@ struct InfixOp {
     right: OpArg,
 }
 
-type Item = u32;
+type WorryLevel = u32;
+type MonkeyId = u32;
 
 #[derive(PartialEq, Debug)]
 struct Monkey {
-    id: u32,
-    items: Vec<Item>,
+    id: MonkeyId,
+    items: VecDeque<WorryLevel>,
     op: InfixOp,
     test_div: u32,
     true_target: u32,
     false_target: u32,
 }
-
-impl Monkey {}
 
 impl FromStr for Monkey {
     type Err = Error;
@@ -88,7 +88,7 @@ impl FromStr for Monkey {
             .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid monkey id"))?;
 
         // We now items is there bc. the regex matches
-        let items: Vec<Item> = caps["items"]
+        let items: VecDeque<WorryLevel> = caps["items"]
             .split(", ")
             .map(|item| item.parse())
             .collect::<Result<_, _>>()
@@ -149,6 +149,60 @@ impl FromStr for Monkey {
     }
 }
 
+impl Monkey {
+    fn inspect(&self, item: WorryLevel) -> WorryLevel {
+        let left_op = match self.op.left {
+            OpArg::Old => item,
+            OpArg::Value(val) => val,
+        };
+
+        let right_op = match self.op.right {
+            OpArg::Old => item,
+            OpArg::Value(val) => val,
+        };
+
+        match self.op.op {
+            Op::Multiply => left_op * right_op,
+            Op::Add => left_op + right_op,
+        }
+    }
+
+    fn throw_target(&self, item: WorryLevel) -> MonkeyId {
+        match item % self.test_div {
+            0 => self.true_target,
+            _ => self.false_target,
+        }
+    }
+
+    /// Each monkey has several attributes:
+    /// - Starting items lists your worry level for each item the monkey
+    ///   is currently holding in the order they will be inspected.
+    /// - Operation shows how your worry level changes as that monkey inspects
+    ///   an item. (An operation like new = old * 5 means that your worry level
+    ///   after the monkey inspected the item is five times whatever
+    ///   your worry level was before inspection.)
+    /// - Test shows how the monkey uses your worry level to decide
+    ///   where to throw an item next.
+    ///   - If true shows what happens with an item if the Test was true.
+    ///   = If false shows what happens with an item if the Test was false.
+    ///
+    /// After each monkey inspects an item but before it tests your
+    /// worry level, your relief that the monkey's inspection didn't
+    /// damage the item causes your worry level to be divided by three
+    /// and rounded down to the nearest integer.
+    fn inspect_and_throw(&mut self) -> Option<(MonkeyId, WorryLevel)> {
+        let item = self.items.pop_front()?;
+        let item = self.inspect(item);
+        let item = item / 3;
+
+        Some((self.throw_target(item), item))
+    }
+
+    fn catch(&mut self, item: WorryLevel) {
+        self.items.push_back(item);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,7 +223,7 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 0,
-                items: vec![79, 98],
+                items: vec![79, 98].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Multiply,
@@ -194,7 +248,7 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 1,
-                items: vec![54, 65, 75, 74],
+                items: vec![54, 65, 75, 74].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Add,
@@ -219,7 +273,7 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 2,
-                items: vec![97],
+                items: vec![97].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Multiply,
@@ -230,5 +284,70 @@ mod tests {
                 false_target: 3
             }
         );
+    }
+
+    #[test]
+    fn inspect() {
+        let mut monkey = Monkey {
+            id: 0,
+            items: vec![79, 98].into(),
+            op: InfixOp {
+                left: OpArg::Old,
+                op: Op::Multiply,
+                right: OpArg::Value(19),
+            },
+            test_div: 23,
+            true_target: 2,
+            false_target: 3,
+        };
+
+        // Monkey inspects an item with a worry level of 79.
+        assert_eq!(monkey.items[0], 79);
+        //   Worry level is multiplied by 19 to 1501.
+        assert_eq!(monkey.inspect(monkey.items[0]), 1501);
+        //   Monkey gets bored with item. Worry level is divided by 3 to 500.
+        //   Current worry level is not divisible by 23.
+        //   Item with worry level 500 is thrown to monkey 3.
+        assert_eq!(monkey.inspect_and_throw(), Some((3, 500)));
+
+        // Monkey inspects an item with a worry level of 98.
+        assert_eq!(monkey.items[0], 98);
+        //   Worry level is multiplied by 19 to 1862.
+        assert_eq!(monkey.inspect(monkey.items[0]), 1862);
+        //   Monkey gets bored with item. Worry level is divided by 3 to 620.
+        //   Current worry level is not divisible by 23.
+        //   Item with worry level 620 is thrown to monkey 3.
+        assert_eq!(monkey.inspect_and_throw(), Some((3, 620)));
+
+        let mut monkey = Monkey {
+            id: 2,
+            items: vec![79, 60, 97].into(),
+            op: InfixOp {
+                left: OpArg::Old,
+                op: Op::Multiply,
+                right: OpArg::Old,
+            },
+            test_div: 13,
+            true_target: 1,
+            false_target: 3,
+        };
+
+        // Monkey inspects an item with a worry level of 79.
+        assert_eq!(monkey.items[0], 79);
+        //   Worry level is multiplied by itself to 6241.
+        assert_eq!(monkey.inspect(monkey.items[0]), 6241);
+        //   Monkey gets bored with item. Worry level is divided by 3 to 2080.
+        //   Current worry level is divisible by 13.
+        //   Item with worry level 2080 is thrown to monkey 1.
+        assert_eq!(monkey.inspect_and_throw(), Some((1, 2080)));
+
+        // Monkey inspects an item with a worry level of 60.
+        assert_eq!(monkey.items[0], 60);
+        //   Worry level is multiplied by itself to 3600.
+        assert_eq!(monkey.inspect(monkey.items[0]), 3600);
+        //   Monkey gets bored with item. Worry level is divided by 3 to 1200.
+        //   Current worry level is not divisible by 13.
+        //   Item with worry level 1200 is thrown to monkey 3.
+        assert_eq!(monkey.inspect_and_throw(), Some((3, 1200)));
     }
 }
