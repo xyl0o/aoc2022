@@ -85,7 +85,8 @@ impl CargoBay {
             // into the corresponding stack
             for idx in 0..cb.stacks.len() {
                 if let Some(cargo) = caps.get(idx + 1) {
-                    cb.stacks[idx].push(cargo.as_str().chars().next().unwrap());
+                    cb.stacks[idx]
+                        .push(cargo.as_str().chars().next().unwrap());
                 }
             }
         }
@@ -110,15 +111,18 @@ trait CrateMover {
     fn parse_line(line: &str) -> (usize, usize, usize) {
         lazy_static! {
             static ref RE_LINE: Regex =
-                Regex::new(r"move\s*(\d+)\s*from\s*(\d+)\s*to\s*(\d+)").unwrap();
+                Regex::new(r"move\s*(\d+)\s*from\s*(\d+)\s*to\s*(\d+)")
+                    .unwrap();
         }
 
         let caps = RE_LINE.captures(line).unwrap();
 
         let amount: usize = caps.get(1).unwrap().as_str().parse().unwrap();
 
-        let source_stack: usize = caps.get(2).unwrap().as_str().parse().unwrap();
-        let target_stack: usize = caps.get(3).unwrap().as_str().parse().unwrap();
+        let source_stack: usize =
+            caps.get(2).unwrap().as_str().parse().unwrap();
+        let target_stack: usize =
+            caps.get(3).unwrap().as_str().parse().unwrap();
 
         (amount, source_stack, target_stack)
     }
@@ -128,10 +132,12 @@ struct CrateMover9000 {}
 
 impl CrateMover for CrateMover9000 {
     fn operate_crane(cb: &mut CargoBay, line: &str) {
-        let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
+        let (amount, source, target) =
+            <CrateMover9001 as CrateMover>::parse_line(line);
 
         let source = &mut cb.stacks[source - 1];
-        let cargo: Vec<_> = source.drain(source.len() - amount..).rev().collect();
+        let cargo: Vec<_> =
+            source.drain(source.len() - amount..).rev().collect();
         cb.stacks[target - 1].extend(cargo);
     }
 }
@@ -140,7 +146,8 @@ struct CrateMover9001 {}
 
 impl CrateMover for CrateMover9001 {
     fn operate_crane(cb: &mut CargoBay, line: &str) {
-        let (amount, source, target) = <CrateMover9001 as CrateMover>::parse_line(line);
+        let (amount, source, target) =
+            <CrateMover9001 as CrateMover>::parse_line(line);
 
         let source = &mut cb.stacks[source - 1];
         let cargo: Vec<_> = source.drain(source.len() - amount..).collect();

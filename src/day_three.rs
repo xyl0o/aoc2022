@@ -92,7 +92,8 @@ impl ElfGroup {
         sets[2].extend(self.elves[2].first_comp.chars());
         sets[2].extend(self.elves[2].second_comp.chars());
 
-        let tmp: HashSet<char> = sets[0].intersection(&sets[1]).copied().collect();
+        let tmp: HashSet<char> =
+            sets[0].intersection(&sets[1]).copied().collect();
 
         let tmp: HashSet<char> = tmp.intersection(&sets[2]).copied().collect();
 

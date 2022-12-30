@@ -145,7 +145,9 @@ mod tests {
             false
         );
         assert_eq!(
-            pairwise_distinct_long(&vec!['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']),
+            pairwise_distinct_long(&vec![
+                'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'
+            ]),
             false
         );
     }
