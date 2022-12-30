@@ -1,6 +1,7 @@
 use indexmap::IndexMap;
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use num_bigint::BigUint;
 use regex::Regex;
 use std::{
     collections::{HashMap, VecDeque},
@@ -16,6 +17,9 @@ pub fn both(input: &str) {
     println!("Part two: {:?}", part_two_solution);
 }
 
+type WorryLevel = BigUint;
+type MonkeyId = u32;
+
 pub fn part_one(input: &str) -> u64 {
     let monkeys: Vec<Monkey> = input
         .split("\n\n")
@@ -23,7 +27,7 @@ pub fn part_one(input: &str) -> u64 {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    let mut ka = KeepAway::new(monkeys, 3);
+    let mut ka = KeepAway::new(monkeys, false);
 
     for _ in 0..20 {
         ka.round();
@@ -45,10 +49,11 @@ pub fn part_two(input: &str) -> u64 {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    let mut ka = KeepAway::new(monkeys, 1);
+    let mut ka = KeepAway::new(monkeys, true);
 
-    for _ in 0..10000 {
+    for r in 0..10000 {
         ka.round();
+        dbg!(r);
     }
 
     ka.inspections
@@ -59,9 +64,6 @@ pub fn part_two(input: &str) -> u64 {
         .copied()
         .fold(1, |acc, x| acc * x as u64)
 }
-
-type WorryLevel = u64;
-type MonkeyId = u32;
 
 #[derive(PartialEq, Debug)]
 enum OpArg {
@@ -81,7 +83,6 @@ struct InfixOp {
     op: Op,
     right: OpArg,
 }
-
 
 #[derive(PartialEq, Debug)]
 struct Monkey {
@@ -191,13 +192,13 @@ impl FromStr for Monkey {
 type MonkeyThrow = (MonkeyId, WorryLevel);
 
 impl Monkey {
-    fn inspect(&self, item: WorryLevel) -> WorryLevel {
-        let left_op = match self.op.left {
+    fn inspect(&self, item: &WorryLevel) -> WorryLevel {
+        let left_op = match &self.op.left {
             OpArg::Old => item,
             OpArg::Value(val) => val,
         };
 
-        let right_op = match self.op.right {
+        let right_op = match &self.op.right {
             OpArg::Old => item,
             OpArg::Value(val) => val,
         };
@@ -208,10 +209,11 @@ impl Monkey {
         }
     }
 
-    fn throw_target(&self, item: WorryLevel) -> MonkeyId {
-        match item % self.test_div {
-            0 => self.true_target,
-            _ => self.false_target,
+    fn throw_target(&self, item: &WorryLevel) -> MonkeyId {
+        if item % &self.test_div == BigUint::from(0u32) {
+            self.true_target
+        } else {
+            self.false_target
         }
     }
 
@@ -232,15 +234,18 @@ impl Monkey {
     /// damage the item causes your worry level to be divided by three
     /// and rounded down to the nearest integer.
     fn inspect_and_throw(&mut self) -> Option<MonkeyThrow> {
-        self.inspect_and_throw_worried(3)
+        let item = self.items.pop_front()?;
+        let item = self.inspect(&item);
+        let item = item / BigUint::from(3u32);
+
+        Some((self.throw_target(&item), item.clone()))
     }
 
-    fn inspect_and_throw_worried(&mut self, worry_div: WorryLevel) -> Option<MonkeyThrow> {
+    fn inspect_and_throw_worried(&mut self) -> Option<MonkeyThrow> {
         let item = self.items.pop_front()?;
-        let item = self.inspect(item);
-        let item = item / worry_div;
+        let item = self.inspect(&item);
 
-        Some((self.throw_target(item), item))
+        Some((self.throw_target(&item), item.clone()))
     }
 
     fn catch(&mut self, item: WorryLevel) {
@@ -248,14 +253,15 @@ impl Monkey {
     }
 }
 
+#[derive(Debug)]
 struct KeepAway {
     monkeys: IndexMap<MonkeyId, Monkey>,
     inspections: HashMap<MonkeyId, u32>,
-    worry_div: WorryLevel,
+    worried: bool,
 }
 
 impl KeepAway {
-    fn new(monkeys: impl IntoIterator<Item = Monkey>, worry_div: WorryLevel) -> Self {
+    fn new(monkeys: impl IntoIterator<Item = Monkey>, worried: bool) -> Self {
         let mut idxmap = IndexMap::new();
 
         for monkey in monkeys {
@@ -265,7 +271,7 @@ impl KeepAway {
         Self {
             monkeys: idxmap,
             inspections: HashMap::default(),
-            worry_div,
+            worried,
         }
     }
     /// The monkeys take turns inspecting and throwing items. On a single
@@ -279,8 +285,11 @@ impl KeepAway {
             let monkey = self.monkeys.get_mut(&monkey_id).unwrap();
 
             // collect so monkey drops and second mut borrow is possible
-            let thrown: Vec<MonkeyThrow> =
-                std::iter::from_fn(|| monkey.inspect_and_throw_worried(self.worry_div)).collect();
+            let thrown: Vec<MonkeyThrow> = if self.worried {
+                std::iter::from_fn(|| monkey.inspect_and_throw_worried()).collect()
+            } else {
+                std::iter::from_fn(|| monkey.inspect_and_throw()).collect()
+            };
 
             let thrown_len = thrown.len() as u32;
             self.inspections
@@ -342,13 +351,13 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 0,
-                items: vec![79, 98].into(),
+                items: vec![79u32.into(), 98u32.into()].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Multiply,
-                    right: OpArg::Value(19)
+                    right: OpArg::Value(19u32.into())
                 },
-                test_div: 23,
+                test_div: 23u32.into(),
                 true_target: 2,
                 false_target: 3
             }
@@ -360,13 +369,13 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 1,
-                items: vec![54, 65, 75, 74].into(),
+                items: vec![54u32.into(), 65u32.into(), 75u32.into(), 74u32.into()].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Add,
-                    right: OpArg::Value(6)
+                    right: OpArg::Value(6u32.into())
                 },
-                test_div: 19,
+                test_div: 19u32.into(),
                 true_target: 2,
                 false_target: 0
             }
@@ -378,13 +387,13 @@ mod tests {
             monkey.unwrap(),
             Monkey {
                 id: 2,
-                items: vec![79, 60, 97].into(),
+                items: vec![79u32.into(), 60u32.into(), 97u32.into()].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Multiply,
                     right: OpArg::Old
                 },
-                test_div: 13,
+                test_div: 13u32.into(),
                 true_target: 1,
                 false_target: 3
             }
@@ -395,65 +404,77 @@ mod tests {
     fn inspect() {
         let mut monkey = Monkey {
             id: 0,
-            items: vec![79, 98].into(),
+            items: vec![79u32.into(), 98u32.into()].into(),
             op: InfixOp {
                 left: OpArg::Old,
                 op: Op::Multiply,
-                right: OpArg::Value(19),
+                right: OpArg::Value(19u32.into()),
             },
-            test_div: 23,
+            test_div: 23u32.into(),
             true_target: 2,
             false_target: 3,
         };
 
         // Monkey inspects an item with a worry level of 79.
-        assert_eq!(monkey.items[0], 79);
+        assert_eq!(monkey.items[0], 79u32.into());
         //   Worry level is multiplied by 19 to 1501.
-        assert_eq!(monkey.inspect(monkey.items[0]), 1501);
+        assert_eq!(monkey.inspect(&monkey.items[0]), 1501u32.into());
         //   Monkey gets bored with item. Worry level is divided by 3 to 500.
         //   Current worry level is not divisible by 23.
         //   Item with worry level 500 is thrown to monkey 3.
-        assert_eq!(monkey.inspect_and_throw(), Some((3, 500)));
+        assert_eq!(
+            monkey.inspect_and_throw(),
+            Some((3u32.into(), 500u32.into()))
+        );
 
         // Monkey inspects an item with a worry level of 98.
-        assert_eq!(monkey.items[0], 98);
+        assert_eq!(monkey.items[0], 98u32.into());
         //   Worry level is multiplied by 19 to 1862.
-        assert_eq!(monkey.inspect(monkey.items[0]), 1862);
+        assert_eq!(monkey.inspect(&monkey.items[0]), 1862u32.into());
         //   Monkey gets bored with item. Worry level is divided by 3 to 620.
         //   Current worry level is not divisible by 23.
         //   Item with worry level 620 is thrown to monkey 3.
-        assert_eq!(monkey.inspect_and_throw(), Some((3, 620)));
+        assert_eq!(
+            monkey.inspect_and_throw(),
+            Some((3u32.into(), 620u32.into()))
+        );
 
         let mut monkey = Monkey {
             id: 2,
-            items: vec![79, 60, 97].into(),
+            items: vec![79u32.into(), 60u32.into(), 97u32.into()].into(),
             op: InfixOp {
                 left: OpArg::Old,
                 op: Op::Multiply,
                 right: OpArg::Old,
             },
-            test_div: 13,
+            test_div: 13u32.into(),
             true_target: 1,
             false_target: 3,
         };
 
         // Monkey inspects an item with a worry level of 79.
-        assert_eq!(monkey.items[0], 79);
+        assert_eq!(monkey.items[0], 79u32.into());
         //   Worry level is multiplied by itself to 6241.
-        assert_eq!(monkey.inspect(monkey.items[0]), 6241);
+        assert_eq!(monkey.inspect(&monkey.items[0]), 6241u32.into());
         //   Monkey gets bored with item. Worry level is divided by 3 to 2080.
         //   Current worry level is divisible by 13.
         //   Item with worry level 2080 is thrown to monkey 1.
-        assert_eq!(monkey.inspect_and_throw(), Some((1, 2080)));
+        assert_eq!(
+            monkey.inspect_and_throw(),
+            Some((1u32.into(), 2080u32.into()))
+        );
 
         // Monkey inspects an item with a worry level of 60.
-        assert_eq!(monkey.items[0], 60);
+        assert_eq!(monkey.items[0], 60u32.into());
         //   Worry level is multiplied by itself to 3600.
-        assert_eq!(monkey.inspect(monkey.items[0]), 3600);
+        assert_eq!(monkey.inspect(&monkey.items[0]), 3600u32.into());
         //   Monkey gets bored with item. Worry level is divided by 3 to 1200.
         //   Current worry level is not divisible by 13.
         //   Item with worry level 1200 is thrown to monkey 3.
-        assert_eq!(monkey.inspect_and_throw(), Some((3, 1200)));
+        assert_eq!(
+            monkey.inspect_and_throw(),
+            Some((3u32.into(), 1200u32.into()))
+        );
     }
 
     #[test]
@@ -463,18 +484,49 @@ mod tests {
                 .iter()
                 .map(|m| m.parse().unwrap())
                 .collect::<Vec<_>>(),
-            3,
+            false,
         );
 
         ka.round();
-        assert_eq!(ka.monkeys[0].items, vec![20, 23, 27, 26]);
-        assert_eq!(ka.monkeys[1].items, vec![2080, 25, 167, 207, 401, 1046]);
+        assert_eq!(
+            ka.monkeys[0].items,
+            vec![20u32.into(), 23u32.into(), 27u32.into(), 26u32.into()]
+        );
+        assert_eq!(
+            ka.monkeys[1].items,
+            vec![
+                2080u32.into(),
+                25u32.into(),
+                167u32.into(),
+                207u32.into(),
+                401u32.into(),
+                1046u32.into()
+            ]
+        );
         assert_eq!(ka.monkeys[2].items, vec![]);
         assert_eq!(ka.monkeys[3].items, vec![]);
 
         ka.round();
-        assert_eq!(ka.monkeys[0].items, vec![695, 10, 71, 135, 350]);
-        assert_eq!(ka.monkeys[1].items, vec![43, 49, 58, 55, 362]);
+        assert_eq!(
+            ka.monkeys[0].items,
+            vec![
+                695u32.into(),
+                10u32.into(),
+                71u32.into(),
+                135u32.into(),
+                350u32.into()
+            ]
+        );
+        assert_eq!(
+            ka.monkeys[1].items,
+            vec![
+                43u32.into(),
+                49u32.into(),
+                58u32.into(),
+                55u32.into(),
+                362u32.into()
+            ]
+        );
         assert_eq!(ka.monkeys[2].items, vec![]);
         assert_eq!(ka.monkeys[3].items, vec![]);
     }
@@ -486,7 +538,7 @@ mod tests {
                 .iter()
                 .map(|m| m.parse().unwrap())
                 .collect::<Vec<_>>(),
-            3,
+            false,
         );
 
         for _ in 0..20 {
