@@ -286,16 +286,40 @@ mod tests {
     use super::*;
     use indoc::indoc;
 
+    const MONKEYS: [&str; 4] = [
+        indoc! {"
+            Monkey 0:
+              Starting items: 79, 98
+              Operation: new = old * 19
+              Test: divisible by 23
+                If true: throw to monkey 2
+                If false: throw to monkey 3"},
+        indoc! {"
+            Monkey 1:
+              Starting items: 54, 65, 75, 74
+              Operation: new = old + 6
+              Test: divisible by 19
+                If true: throw to monkey 2
+                If false: throw to monkey 0"},
+        indoc! {"
+            Monkey 2:
+              Starting items: 79, 60, 97
+              Operation: new = old * old
+              Test: divisible by 13
+                If true: throw to monkey 1
+                If false: throw to monkey 3"},
+        indoc! {"
+            Monkey 3:
+              Starting items: 74
+              Operation: new = old + 3
+              Test: divisible by 17
+                If true: throw to monkey 0
+                If false: throw to monkey 1"},
+    ];
+
     #[test]
     fn parse_monkey() {
-        let monkey = indoc! {"
-        Monkey 0:
-          Starting items: 79, 98
-          Operation: new = old * 19
-          Test: divisible by 23
-            If true: throw to monkey 2
-            If false: throw to monkey 3"};
-        let monkey = dbg!(monkey.parse::<Monkey>());
+        let monkey = dbg!(MONKEYS[0].parse::<Monkey>());
         assert!(monkey.is_ok());
         assert_eq!(
             monkey.unwrap(),
@@ -313,14 +337,7 @@ mod tests {
             }
         );
 
-        let monkey = indoc! {"
-        Monkey 1:
-          Starting items: 54, 65, 75, 74
-          Operation: new = old + 6
-          Test: divisible by 19
-            If true: throw to monkey 2
-            If false: throw to monkey 0"};
-        let monkey = dbg!(monkey.parse::<Monkey>());
+        let monkey = dbg!(MONKEYS[1].parse::<Monkey>());
         assert!(monkey.is_ok());
         assert_eq!(
             monkey.unwrap(),
@@ -338,20 +355,13 @@ mod tests {
             }
         );
 
-        let monkey = indoc! {"
-        Monkey 2:
-          Starting items: 97
-          Operation: new = old * old
-          Test: divisible by 13
-            If true: throw to monkey 1
-            If false: throw to monkey 3"};
-        let monkey = dbg!(monkey.parse::<Monkey>());
+        let monkey = dbg!(MONKEYS[2].parse::<Monkey>());
         assert!(monkey.is_ok());
         assert_eq!(
             monkey.unwrap(),
             Monkey {
                 id: 2,
-                items: vec![97].into(),
+                items: vec![79, 60, 97].into(),
                 op: InfixOp {
                     left: OpArg::Old,
                     op: Op::Multiply,
@@ -432,39 +442,10 @@ mod tests {
     #[test]
     fn keep_away_round() {
         let mut ka = KeepAway::new(
-            [
-                indoc! {"
-                    Monkey 0:
-                      Starting items: 79, 98
-                      Operation: new = old * 19
-                      Test: divisible by 23
-                        If true: throw to monkey 2
-                        If false: throw to monkey 3"},
-                indoc! {"
-                    Monkey 1:
-                      Starting items: 54, 65, 75, 74
-                      Operation: new = old + 6
-                      Test: divisible by 19
-                        If true: throw to monkey 2
-                        If false: throw to monkey 0"},
-                indoc! {"
-                    Monkey 2:
-                      Starting items: 79, 60, 97
-                      Operation: new = old * old
-                      Test: divisible by 13
-                        If true: throw to monkey 1
-                        If false: throw to monkey 3"},
-                indoc! {"
-                    Monkey 3:
-                      Starting items: 74
-                      Operation: new = old + 3
-                      Test: divisible by 17
-                        If true: throw to monkey 0
-                        If false: throw to monkey 1"},
-            ]
-            .iter()
-            .map(|m| m.parse().unwrap())
-            .collect::<Vec<_>>(),
+            MONKEYS
+                .iter()
+                .map(|m| m.parse().unwrap())
+                .collect::<Vec<_>>(),
             3,
         );
 
@@ -484,39 +465,10 @@ mod tests {
     #[test]
     fn keep_away_inspections() {
         let mut ka = KeepAway::new(
-            [
-                indoc! {"
-                    Monkey 0:
-                      Starting items: 79, 98
-                      Operation: new = old * 19
-                      Test: divisible by 23
-                        If true: throw to monkey 2
-                        If false: throw to monkey 3"},
-                indoc! {"
-                    Monkey 1:
-                      Starting items: 54, 65, 75, 74
-                      Operation: new = old + 6
-                      Test: divisible by 19
-                        If true: throw to monkey 2
-                        If false: throw to monkey 0"},
-                indoc! {"
-                    Monkey 2:
-                      Starting items: 79, 60, 97
-                      Operation: new = old * old
-                      Test: divisible by 13
-                        If true: throw to monkey 1
-                        If false: throw to monkey 3"},
-                indoc! {"
-                    Monkey 3:
-                      Starting items: 74
-                      Operation: new = old + 3
-                      Test: divisible by 17
-                        If true: throw to monkey 0
-                        If false: throw to monkey 1"},
-            ]
-            .iter()
-            .map(|m| m.parse().unwrap())
-            .collect::<Vec<_>>(),
+            MONKEYS
+                .iter()
+                .map(|m| m.parse().unwrap())
+                .collect::<Vec<_>>(),
             3,
         );
 
