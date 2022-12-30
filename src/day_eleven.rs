@@ -234,6 +234,7 @@ struct KeepAway {
     monkeys: IndexMap<MonkeyId, Monkey>,
     inspections: HashMap<MonkeyId, u32>,
     worry_div: WorryLevel,
+    lcm: WorryLevel,
 }
 
 impl KeepAway {
@@ -244,10 +245,13 @@ impl KeepAway {
             idxmap.insert(monkey.id, monkey);
         }
 
+        let lcm = idxmap.values().map(|m| m.test_div).fold(1, |acc, x| acc * x);
+
         Self {
             monkeys: idxmap,
             inspections: HashMap::default(),
             worry_div,
+            lcm,
         }
     }
     /// The monkeys take turns inspecting and throwing items. On a single
@@ -274,7 +278,7 @@ impl KeepAway {
                 self.monkeys
                     .get_mut(&monkey_id)
                     .expect("Invalid target monkey")
-                    .catch(item);
+                    .catch(item % self.lcm);
             }
         }
     }
