@@ -16,7 +16,7 @@ pub fn both(input: &str) {
     println!("Part two: {:?}", part_two_solution);
 }
 
-pub fn part_one(input: &str) -> u32 {
+pub fn part_one(input: &str) -> u64 {
     let monkeys: Vec<Monkey> = input
         .split("\n\n")
         .map(|split| split.parse())
@@ -35,8 +35,7 @@ pub fn part_one(input: &str) -> u32 {
         .rev()
         .take(2)
         .copied()
-        .reduce(|acc, x| acc * x)
-        .unwrap()
+        .fold(1, |acc, x| acc * x as u64)
 }
 
 pub fn part_two(input: &str) -> String {
