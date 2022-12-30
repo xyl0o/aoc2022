@@ -171,6 +171,8 @@ impl FromStr for Monkey {
     }
 }
 
+type MonkeyThrow = (MonkeyId, WorryLevel);
+
 impl Monkey {
     fn inspect(&self, item: WorryLevel) -> WorryLevel {
         let left_op = match self.op.left {
@@ -212,11 +214,11 @@ impl Monkey {
     /// worry level, your relief that the monkey's inspection didn't
     /// damage the item causes your worry level to be divided by three
     /// and rounded down to the nearest integer.
-    fn inspect_and_throw(&mut self) -> Option<(MonkeyId, WorryLevel)> {
+    fn inspect_and_throw(&mut self) -> Option<MonkeyThrow> {
         self.inspect_and_throw_worried(3)
     }
 
-    fn inspect_and_throw_worried(&mut self, worry_div: WorryLevel) -> Option<(MonkeyId, WorryLevel)> {
+    fn inspect_and_throw_worried(&mut self, worry_div: WorryLevel) -> Option<MonkeyThrow> {
         let item = self.items.pop_front()?;
         let item = self.inspect(item);
         let item = item / worry_div;
