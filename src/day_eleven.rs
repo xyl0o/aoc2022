@@ -38,8 +38,26 @@ pub fn part_one(input: &str) -> u64 {
         .fold(1, |acc, x| acc * x as u64)
 }
 
-pub fn part_two(input: &str) -> String {
-    todo!();
+pub fn part_two(input: &str) -> u64 {
+    let monkeys: Vec<Monkey> = input
+        .split("\n\n")
+        .map(|split| split.parse())
+        .collect::<Result<_, _>>()
+        .unwrap();
+
+    let mut ka = KeepAway::new(monkeys, 1);
+
+    for _ in 0..10000 {
+        ka.round();
+    }
+
+    ka.inspections
+        .values()
+        .sorted()
+        .rev()
+        .take(2)
+        .copied()
+        .fold(1, |acc, x| acc * x as u64)
 }
 
 type WorryLevel = u64;
@@ -234,6 +252,7 @@ struct KeepAway {
     monkeys: IndexMap<MonkeyId, Monkey>,
     inspections: HashMap<MonkeyId, u32>,
     worry_div: WorryLevel,
+    lcm: WorryLevel,
 }
 
 impl KeepAway {
@@ -244,10 +263,13 @@ impl KeepAway {
             idxmap.insert(monkey.id, monkey);
         }
 
+        let lcm = idxmap.values().map(|m| m.test_div).fold(1, |acc, x| acc * x);
+
         Self {
             monkeys: idxmap,
             inspections: HashMap::default(),
             worry_div,
+            lcm,
         }
     }
     /// The monkeys take turns inspecting and throwing items. On a single
@@ -274,7 +296,7 @@ impl KeepAway {
                 self.monkeys
                     .get_mut(&monkey_id)
                     .expect("Invalid target monkey")
-                    .catch(item);
+                    .catch(item % self.lcm);
             }
         }
     }
