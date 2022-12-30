@@ -38,8 +38,26 @@ pub fn part_one(input: &str) -> u64 {
         .fold(1, |acc, x| acc * x as u64)
 }
 
-pub fn part_two(input: &str) -> String {
-    todo!();
+pub fn part_two(input: &str) -> u64 {
+    let monkeys: Vec<Monkey> = input
+        .split("\n\n")
+        .map(|split| split.parse())
+        .collect::<Result<_, _>>()
+        .unwrap();
+
+    let mut ka = KeepAway::new(monkeys, 1);
+
+    for _ in 0..10000 {
+        ka.round();
+    }
+
+    ka.inspections
+        .values()
+        .sorted()
+        .rev()
+        .take(2)
+        .copied()
+        .fold(1, |acc, x| acc * x as u64)
 }
 
 type WorryLevel = u64;
