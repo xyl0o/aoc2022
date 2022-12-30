@@ -23,7 +23,7 @@ pub fn part_one(input: &str) -> u32 {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    let mut ka = KeepAway::new(monkeys);
+    let mut ka = KeepAway::new(monkeys, 3);
 
     for _ in 0..20 {
         ka.round();
@@ -213,9 +213,13 @@ impl Monkey {
     /// damage the item causes your worry level to be divided by three
     /// and rounded down to the nearest integer.
     fn inspect_and_throw(&mut self) -> Option<(MonkeyId, WorryLevel)> {
+        self.inspect_and_throw_worried(3)
+    }
+
+    fn inspect_and_throw_worried(&mut self, worry_div: WorryLevel) -> Option<(MonkeyId, WorryLevel)> {
         let item = self.items.pop_front()?;
         let item = self.inspect(item);
-        let item = item / 3;
+        let item = item / worry_div;
 
         Some((self.throw_target(item), item))
     }
@@ -228,10 +232,11 @@ impl Monkey {
 struct KeepAway {
     monkeys: IndexMap<MonkeyId, Monkey>,
     inspections: HashMap<MonkeyId, u32>,
+    worry_div: WorryLevel,
 }
 
 impl KeepAway {
-    fn new(monkeys: impl IntoIterator<Item = Monkey>) -> Self {
+    fn new(monkeys: impl IntoIterator<Item = Monkey>, worry_div: WorryLevel) -> Self {
         let mut idxmap = IndexMap::new();
 
         for monkey in monkeys {
@@ -241,6 +246,7 @@ impl KeepAway {
         Self {
             monkeys: idxmap,
             inspections: HashMap::default(),
+            worry_div,
         }
     }
     /// The monkeys take turns inspecting and throwing items. On a single
@@ -254,8 +260,8 @@ impl KeepAway {
             let monkey = self.monkeys.get_mut(&monkey_id).unwrap();
 
             // collect so monkey drops and second mut borrow is possible
-            let thrown: Vec<(MonkeyId, WorryLevel)> =
-                std::iter::from_fn(|| monkey.inspect_and_throw()).collect();
+            let thrown: Vec<MonkeyThrow> =
+                std::iter::from_fn(|| monkey.inspect_and_throw_worried(self.worry_div)).collect();
 
             let thrown_len = thrown.len() as u32;
             self.inspections
@@ -457,6 +463,7 @@ mod tests {
             .iter()
             .map(|m| m.parse().unwrap())
             .collect::<Vec<_>>(),
+            3,
         );
 
         ka.round();
@@ -508,6 +515,7 @@ mod tests {
             .iter()
             .map(|m| m.parse().unwrap())
             .collect::<Vec<_>>(),
+            3,
         );
 
         for _ in 0..20 {
