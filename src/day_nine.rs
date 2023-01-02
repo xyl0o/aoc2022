@@ -7,6 +7,8 @@ use std::{
     str::FromStr,
 };
 
+use crate::Point2D;
+
 pub fn both(input: &str) {
     let part_one_solution = part_one(input);
     println!("Part one: {:?}", part_one_solution);
@@ -51,31 +53,10 @@ struct Move {
     distance: u32,
 }
 
-#[derive(PartialEq, Eq, Debug, Hash, Copy, Clone)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl Point {
-    fn is_moore(&self, other: &Point) -> bool {
-        self.x <= other.x + 1
-            && self.x >= other.x - 1
-            && self.y <= other.y + 1
-            && self.y >= other.y - 1
-    }
-}
-
-impl Default for Point {
-    fn default() -> Self {
-        Point { x: 0, y: 0 }
-    }
-}
-
 #[derive(PartialEq, Eq, Debug)]
 struct Field {
-    rope: Vec<Point>,
-    visited: HashSet<Point>,
+    rope: Vec<Point2D<i32>>,
+    visited: HashSet<Point2D<i32>>,
 }
 
 impl Default for Field {
@@ -128,8 +109,8 @@ impl fmt::Display for Field {
 impl Field {
     fn new(rope_len: usize) -> Self {
         Field {
-            rope: vec![Point::default(); rope_len],
-            visited: HashSet::from([Point::default()]),
+            rope: vec![Point2D::default(); rope_len],
+            visited: HashSet::from([Point2D::default()]),
         }
     }
 
@@ -159,63 +140,63 @@ impl Field {
                 // -2 ppppp
                 // corners are only possible when rope.len() > 2
                 match prev {
-                    Point { x, y } if x == r.x + 0 && y == r.y + 2 => {
+                    Point2D { x, y } if x == r.x + 0 && y == r.y + 2 => {
                         r.y += 1;
                     }
-                    Point { x, y } if x == r.x + 1 && y == r.y + 2 => {
-                        r.y += 1;
-                        r.x += 1;
-                    }
-                    Point { x, y } if x == r.x + 2 && y == r.y + 2 => {
+                    Point2D { x, y } if x == r.x + 1 && y == r.y + 2 => {
                         r.y += 1;
                         r.x += 1;
                     }
-                    Point { x, y } if x == r.x + 2 && y == r.y + 1 => {
+                    Point2D { x, y } if x == r.x + 2 && y == r.y + 2 => {
                         r.y += 1;
                         r.x += 1;
                     }
-                    Point { x, y } if x == r.x + 2 && y == r.y + 0 => {
+                    Point2D { x, y } if x == r.x + 2 && y == r.y + 1 => {
+                        r.y += 1;
                         r.x += 1;
                     }
-                    Point { x, y } if x == r.x + 2 && y == r.y - 1 => {
-                        r.y -= 1;
+                    Point2D { x, y } if x == r.x + 2 && y == r.y + 0 => {
                         r.x += 1;
                     }
-                    Point { x, y } if x == r.x + 2 && y == r.y - 2 => {
-                        r.y -= 1;
-                        r.x += 1;
-                    }
-                    Point { x, y } if x == r.x + 1 && y == r.y - 2 => {
+                    Point2D { x, y } if x == r.x + 2 && y == r.y - 1 => {
                         r.y -= 1;
                         r.x += 1;
                     }
-                    Point { x, y } if x == r.x + 0 && y == r.y - 2 => {
+                    Point2D { x, y } if x == r.x + 2 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x += 1;
+                    }
+                    Point2D { x, y } if x == r.x + 1 && y == r.y - 2 => {
+                        r.y -= 1;
+                        r.x += 1;
+                    }
+                    Point2D { x, y } if x == r.x + 0 && y == r.y - 2 => {
                         r.y -= 1;
                     }
-                    Point { x, y } if x == r.x - 1 && y == r.y - 2 => {
+                    Point2D { x, y } if x == r.x - 1 && y == r.y - 2 => {
                         r.y -= 1;
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 2 && y == r.y - 2 => {
+                    Point2D { x, y } if x == r.x - 2 && y == r.y - 2 => {
                         r.y -= 1;
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 2 && y == r.y - 1 => {
+                    Point2D { x, y } if x == r.x - 2 && y == r.y - 1 => {
                         r.y -= 1;
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 2 && y == r.y + 0 => {
+                    Point2D { x, y } if x == r.x - 2 && y == r.y + 0 => {
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 2 && y == r.y + 1 => {
+                    Point2D { x, y } if x == r.x - 2 && y == r.y + 1 => {
                         r.y += 1;
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 2 && y == r.y + 2 => {
+                    Point2D { x, y } if x == r.x - 2 && y == r.y + 2 => {
                         r.y += 1;
                         r.x -= 1;
                     }
-                    Point { x, y } if x == r.x - 1 && y == r.y + 2 => {
+                    Point2D { x, y } if x == r.x - 1 && y == r.y + 2 => {
                         r.y += 1;
                         r.x -= 1;
                     }
@@ -314,20 +295,20 @@ mod tests {
 
     #[test]
     fn points_moore() {
-        assert!(Point { x: 0, y: 0 }.is_moore(&Point { x: 0, y: 0 }));
-        assert!(Point { x: 10, y: 10 }.is_moore(&Point { x: 11, y: 11 }));
-        assert!(Point { x: -3, y: 1 }.is_moore(&Point { x: -4, y: 0 }));
-        assert!(Point { x: 1, y: 1 }.is_moore(&Point { x: 0, y: 1 }));
-        assert!(Point { x: 1, y: 1 }.is_moore(&Point { x: 1, y: 0 }));
+        assert!(Point2D { x: 0, y: 0 }.is_moore(&Point2D { x: 0, y: 0 }));
+        assert!(Point2D { x: 10, y: 10 }.is_moore(&Point2D { x: 11, y: 11 }));
+        assert!(Point2D { x: -3, y: 1 }.is_moore(&Point2D { x: -4, y: 0 }));
+        assert!(Point2D { x: 1, y: 1 }.is_moore(&Point2D { x: 0, y: 1 }));
+        assert!(Point2D { x: 1, y: 1 }.is_moore(&Point2D { x: 1, y: 0 }));
     }
 
     #[test]
     fn points_not_moore() {
-        assert!(!Point { x: 0, y: 0 }.is_moore(&Point { x: 0, y: 2 }));
-        assert!(!Point { x: 10, y: 10 }.is_moore(&Point { x: 8, y: 8 }));
-        assert!(!Point { x: -3, y: 1 }.is_moore(&Point { x: 0, y: 0 }));
-        assert!(!Point { x: 1, y: 1 }.is_moore(&Point { x: 10, y: -10 }));
-        assert!(!Point { x: 1, y: 1 }.is_moore(&Point { x: -1, y: -1 }));
+        assert!(!Point2D { x: 0, y: 0 }.is_moore(&Point2D { x: 0, y: 2 }));
+        assert!(!Point2D { x: 10, y: 10 }.is_moore(&Point2D { x: 8, y: 8 }));
+        assert!(!Point2D { x: -3, y: 1 }.is_moore(&Point2D { x: 0, y: 0 }));
+        assert!(!Point2D { x: 1, y: 1 }.is_moore(&Point2D { x: 10, y: -10 }));
+        assert!(!Point2D { x: 1, y: 1 }.is_moore(&Point2D { x: -1, y: -1 }));
     }
 
     #[test]
@@ -338,43 +319,43 @@ mod tests {
             direction: MoveDirection::Right,
             distance: 4,
         });
-        assert_eq!(field.rope[0], Point { x: 4, y: 0 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 4, y: 0 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.rope[0], Point { x: 4, y: 1 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 4, y: 1 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.rope[0], Point { x: 4, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 4, y: 1 });
+        assert_eq!(field.rope[0], Point2D { x: 4, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 4, y: 1 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Left,
             distance: 2,
         });
-        assert_eq!(field.rope[0], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 2 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 1,
         });
-        assert_eq!(field.rope[0], Point { x: 2, y: 3 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point2D { x: 2, y: 3 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 2 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Down,
             distance: 2,
         });
-        assert_eq!(field.rope[0], Point { x: 2, y: 1 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 2 });
+        assert_eq!(field.rope[0], Point2D { x: 2, y: 1 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 2 });
     }
 
     #[test]
@@ -395,8 +376,8 @@ mod tests {
             field.apply_move(m);
         }
 
-        assert_eq!(field.rope[0], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 1, y: 2 });
+        assert_eq!(field.rope[0], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 1, y: 2 });
     }
 
     #[test]
@@ -408,140 +389,140 @@ mod tests {
             distance: 4,
         });
 
-        assert_eq!(field.rope[0], Point { x: 4, y: 0 });
-        assert_eq!(field.rope[1], Point { x: 3, y: 0 });
-        assert_eq!(field.rope[2], Point { x: 2, y: 0 });
-        assert_eq!(field.rope[3], Point { x: 1, y: 0 });
-        assert_eq!(field.rope[4], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[5], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 4, y: 0 });
+        assert_eq!(field.rope[1], Point2D { x: 3, y: 0 });
+        assert_eq!(field.rope[2], Point2D { x: 2, y: 0 });
+        assert_eq!(field.rope[3], Point2D { x: 1, y: 0 });
+        assert_eq!(field.rope[4], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[5], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Up,
             distance: 4,
         });
 
-        assert_eq!(field.rope[0], Point { x: 4, y: 4 });
-        assert_eq!(field.rope[1], Point { x: 4, y: 3 });
-        assert_eq!(field.rope[2], Point { x: 4, y: 2 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 4, y: 4 });
+        assert_eq!(field.rope[1], Point2D { x: 4, y: 3 });
+        assert_eq!(field.rope[2], Point2D { x: 4, y: 2 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Left,
             distance: 3,
         });
 
-        assert_eq!(field.rope[0], Point { x: 1, y: 4 });
-        assert_eq!(field.rope[1], Point { x: 2, y: 4 });
-        assert_eq!(field.rope[2], Point { x: 3, y: 3 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 1, y: 4 });
+        assert_eq!(field.rope[1], Point2D { x: 2, y: 4 });
+        assert_eq!(field.rope[2], Point2D { x: 3, y: 3 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Down,
             distance: 1,
         });
 
-        assert_eq!(field.rope[0], Point { x: 1, y: 3 });
-        assert_eq!(field.rope[1], Point { x: 2, y: 4 });
-        assert_eq!(field.rope[2], Point { x: 3, y: 3 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 1, y: 3 });
+        assert_eq!(field.rope[1], Point2D { x: 2, y: 4 });
+        assert_eq!(field.rope[2], Point2D { x: 3, y: 3 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Right,
             distance: 4,
         });
 
-        assert_eq!(field.rope[0], Point { x: 5, y: 3 });
-        assert_eq!(field.rope[1], Point { x: 4, y: 3 });
-        assert_eq!(field.rope[2], Point { x: 3, y: 3 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 5, y: 3 });
+        assert_eq!(field.rope[1], Point2D { x: 4, y: 3 });
+        assert_eq!(field.rope[2], Point2D { x: 3, y: 3 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Down,
             distance: 1,
         });
 
-        assert_eq!(field.rope[0], Point { x: 5, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 4, y: 3 });
-        assert_eq!(field.rope[2], Point { x: 3, y: 3 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 5, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 4, y: 3 });
+        assert_eq!(field.rope[2], Point2D { x: 3, y: 3 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Left,
             distance: 5,
         });
 
-        assert_eq!(field.rope[0], Point { x: 0, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 1, y: 2 });
-        assert_eq!(field.rope[2], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 0, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 1, y: 2 });
+        assert_eq!(field.rope[2], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
 
         field.apply_move(&Move {
             direction: MoveDirection::Right,
             distance: 2,
         });
 
-        assert_eq!(field.rope[0], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[1], Point { x: 1, y: 2 });
-        assert_eq!(field.rope[2], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[3], Point { x: 3, y: 2 });
-        assert_eq!(field.rope[4], Point { x: 2, y: 2 });
-        assert_eq!(field.rope[5], Point { x: 1, y: 1 });
-        assert_eq!(field.rope[6], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[7], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[8], Point { x: 0, y: 0 });
-        assert_eq!(field.rope[9], Point { x: 0, y: 0 });
+        assert_eq!(field.rope[0], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[1], Point2D { x: 1, y: 2 });
+        assert_eq!(field.rope[2], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[3], Point2D { x: 3, y: 2 });
+        assert_eq!(field.rope[4], Point2D { x: 2, y: 2 });
+        assert_eq!(field.rope[5], Point2D { x: 1, y: 1 });
+        assert_eq!(field.rope[6], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[7], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[8], Point2D { x: 0, y: 0 });
+        assert_eq!(field.rope[9], Point2D { x: 0, y: 0 });
     }
 
     #[test]
     fn field_to_string() {
         let field = Field {
-            rope: vec![Point { x: 0, y: 0 }],
+            rope: vec![Point2D { x: 0, y: 0 }],
             visited: HashSet::new(),
         };
         assert_eq!(field.to_string(), "x");
 
         let field = Field {
-            rope: vec![Point { x: 1, y: 1 }, Point { x: 0, y: 0 }],
+            rope: vec![Point2D { x: 1, y: 1 }, Point2D { x: 0, y: 0 }],
             visited: HashSet::new(),
         };
         assert_eq!(
@@ -554,7 +535,7 @@ mod tests {
         );
 
         let field = Field {
-            rope: vec![Point { x: 5, y: 0 }, Point { x: 0, y: 0 }],
+            rope: vec![Point2D { x: 5, y: 0 }, Point2D { x: 0, y: 0 }],
             visited: HashSet::new(),
         };
         assert_eq!(
@@ -567,10 +548,10 @@ mod tests {
 
         let field = Field {
             rope: vec![
-                Point { x: -2, y: 0 },
-                Point { x: 0, y: 1 },
-                Point { x: 3, y: -1 },
-                Point { x: 0, y: 0 },
+                Point2D { x: -2, y: 0 },
+                Point2D { x: 0, y: 1 },
+                Point2D { x: 3, y: -1 },
+                Point2D { x: 0, y: 0 },
             ],
             visited: HashSet::new(),
         };
@@ -586,16 +567,16 @@ mod tests {
 
         let field = Field {
             rope: vec![
-                Point { x: 4, y: 4 },
-                Point { x: 4, y: 3 },
-                Point { x: 4, y: 2 },
-                Point { x: 3, y: 2 },
-                Point { x: 2, y: 2 },
-                Point { x: 1, y: 1 },
-                Point { x: 0, y: 0 },
-                Point { x: 0, y: 0 },
-                Point { x: 0, y: 0 },
-                Point { x: 0, y: 0 },
+                Point2D { x: 4, y: 4 },
+                Point2D { x: 4, y: 3 },
+                Point2D { x: 4, y: 2 },
+                Point2D { x: 3, y: 2 },
+                Point2D { x: 2, y: 2 },
+                Point2D { x: 1, y: 1 },
+                Point2D { x: 0, y: 0 },
+                Point2D { x: 0, y: 0 },
+                Point2D { x: 0, y: 0 },
+                Point2D { x: 0, y: 0 },
             ],
             visited: HashSet::new(),
         };

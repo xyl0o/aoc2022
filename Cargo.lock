@@ -20,6 +20,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "ndarray",
+ "num-traits",
  "rctree",
  "regex",
 ]
