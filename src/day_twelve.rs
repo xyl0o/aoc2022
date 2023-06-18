@@ -35,35 +35,44 @@ impl FromStr for HeightMap {
         let mut line_iter_peek = s.lines().peekable();
         let cols = line_iter_peek.peek().expect("No input").len();
 
-        let mut start = None;
-        let mut end = None;
+        let mut start: Option<Point2D<usize>> = None;
+        let mut end: Option<Point2D<usize>> = None;
+
+        let mut char_parse = |(row, col), chr| {
+            match chr {
+                c if c.is_ascii_lowercase() => Ok((c as u8) - 97),
+                'S' => match start {
+                    Some(_) => Err(Self::Err::new(
+                        ErrorKind::InvalidData,
+                        "Duplicate starting point",
+                    )),
+                    None => {
+                        start = Some(Point2D { x: col, y: row });
+                        Ok(0) // a
+                    }
+                },
+                'E' => match end {
+                    Some(_) => Err(Self::Err::new(
+                        ErrorKind::InvalidData,
+                        "Duplicate end point",
+                    )),
+                    None => {
+                        end = Some(Point2D { x: col, y: row });
+                        Ok(25) // z
+                    }
+                },
+                _ => Err(Self::Err::new(
+                    ErrorKind::InvalidData,
+                    "Unsupported symbol in map",
+                )),
+            }
+        };
+        // char_parse((row, col), chr)
 
         let flat_map: Array1<u8> = line_iter_peek
             .enumerate()
             .flat_map(|(row, line)| {
-                line.chars().enumerate().map(move |(col, chr)| match chr {
-                    c if c.is_ascii_lowercase() => Ok((c as u8) - 97),
-                    'S' if start.is_some() => Err(Self::Err::new(
-                        ErrorKind::InvalidData,
-                        "Duplicate starting point",
-                    )),
-                    'S' => {
-                        start = Some(Point2D { x: col, y: row });
-                        Ok(0) // a
-                    }
-                    'E' if end.is_some() => Err(Self::Err::new(
-                        ErrorKind::InvalidData,
-                        "Duplicate end point",
-                    )),
-                    'E' => {
-                        end = Some(Point2D { x: col, y: row });
-                        Ok(25) // z
-                    }
-                    _ => Err(Self::Err::new(
-                        ErrorKind::InvalidData,
-                        "Unsupported symbol in map",
-                    )),
-                })
+                line.chars().enumerate().map(|(col, chr)| Ok(5))
             })
             .collect::<Result<_, _>>()?;
 
@@ -71,6 +80,8 @@ impl FromStr for HeightMap {
         let map = flat_map.into_shape((rows, cols)).expect("Invalid shape");
 
         dbg!(&map);
+        dbg!(&start);
+        dbg!(&end);
 
         let start = start
             .ok_or(Self::Err::new(ErrorKind::InvalidData, "No start found"))?;
