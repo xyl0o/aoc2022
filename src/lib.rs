@@ -10,6 +10,7 @@ pub mod day_ten;
 pub mod day_three;
 pub mod day_twelve;
 pub mod day_two;
+pub mod question;
 
 use num_traits::int::PrimInt;
 use num_traits::{abs_sub, Signed};
