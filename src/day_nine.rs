@@ -98,8 +98,7 @@ impl fmt::Display for Field {
         for r in self.rope.iter().rev() {
             let str_x = r.x - min_x;
             let str_y = delta_y + min_y - r.y;
-            let str_idx: usize =
-                (str_x + str_y * (delta_x + 2)).try_into().unwrap();
+            let str_idx: usize = (str_x + str_y * (delta_x + 2)).try_into().unwrap();
             field.replace_range(str_idx..(str_idx + 1), "x");
         }
         write!(f, "{}", field.trim())
@@ -226,10 +225,7 @@ impl FromStr for Move {
         let direction = caps.get(1).unwrap().as_str();
         let distance =
             caps.get(2).unwrap().as_str().parse().map_err(|_| {
-                Self::Err::new(
-                    ErrorKind::InvalidData,
-                    "Couldn't parse move distance",
-                )
+                Self::Err::new(ErrorKind::InvalidData, "Couldn't parse move distance")
             })?;
 
         Ok(Self {
