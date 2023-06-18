@@ -53,8 +53,7 @@ impl FromStr for Instruction {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"^(\w+)(?:\s*(-?\d+))?").unwrap();
+            static ref RE: Regex = Regex::new(r"^(\w+)(?:\s*(-?\d+))?").unwrap();
         }
 
         let caps = RE.captures(s).ok_or(Self::Err::new(
@@ -66,17 +65,11 @@ impl FromStr for Instruction {
         Ok(match caps.get(1).unwrap().as_str() {
             "addx" => Instruction::Addx(
                 caps.get(2)
-                    .ok_or(Self::Err::new(
-                        ErrorKind::InvalidData,
-                        "Addx needs a value",
-                    ))?
+                    .ok_or(Self::Err::new(ErrorKind::InvalidData, "Addx needs a value"))?
                     .as_str()
                     .parse()
                     .map_err(|_| {
-                        Self::Err::new(
-                            ErrorKind::InvalidData,
-                            "Couldn't parse addx value",
-                        )
+                        Self::Err::new(ErrorKind::InvalidData, "Couldn't parse addx value")
                     })?,
             ),
             "noop" => Instruction::Noop,
