@@ -45,7 +45,9 @@ impl FromStr for Field {
 
         let rows = flat_heights.len() / cols;
 
-        let heights = flat_heights.into_shape((rows, cols)).map_err(|_| "Invalid shape")?;
+        let heights = flat_heights
+            .into_shape((rows, cols))
+            .map_err(|_| "Invalid shape")?;
         let point = point.ok_or("No point found")?;
 
         Ok(Field { heights, point })
