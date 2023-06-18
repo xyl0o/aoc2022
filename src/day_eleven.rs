@@ -121,40 +121,34 @@ impl FromStr for Monkey {
         ))?;
 
         // We now id is there bc. the regex matches
-        let id = caps["id"].parse().map_err(|_| {
-            Self::Err::new(ErrorKind::InvalidData, "Invalid monkey id")
-        })?;
+        let id = caps["id"]
+            .parse()
+            .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid monkey id"))?;
 
         // We now items is there bc. the regex matches
         let items: VecDeque<WorryLevel> = caps["items"]
             .split(", ")
             .map(|item| item.parse())
             .collect::<Result<_, _>>()
-            .map_err(|_| {
-                Self::Err::new(ErrorKind::InvalidData, "Couldn't parse items")
-            })?;
+            .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Couldn't parse items"))?;
 
         // We now oparg1 is there bc. the regex matches
-        let oparg1 = match &caps["oparg1"] {
-            "old" => OpArg::Old,
-            val => OpArg::Value(val.parse().map_err(|_| {
-                Self::Err::new(
-                    ErrorKind::InvalidData,
-                    "Couldn't parse op arg 1",
-                )
-            })?),
-        };
+        let oparg1 =
+            match &caps["oparg1"] {
+                "old" => OpArg::Old,
+                val => OpArg::Value(val.parse().map_err(|_| {
+                    Self::Err::new(ErrorKind::InvalidData, "Couldn't parse op arg 1")
+                })?),
+            };
 
         // We now oparg2 is there bc. the regex matches
-        let oparg2 = match &caps["oparg2"] {
-            "old" => OpArg::Old,
-            val => OpArg::Value(val.parse().map_err(|_| {
-                Self::Err::new(
-                    ErrorKind::InvalidData,
-                    "Couldn't parse op arg 2",
-                )
-            })?),
-        };
+        let oparg2 =
+            match &caps["oparg2"] {
+                "old" => OpArg::Old,
+                val => OpArg::Value(val.parse().map_err(|_| {
+                    Self::Err::new(ErrorKind::InvalidData, "Couldn't parse op arg 2")
+                })?),
+            };
 
         // We now op is there bc. the regex matches
         let op = match &caps["op"] {
@@ -164,24 +158,18 @@ impl FromStr for Monkey {
         }?;
 
         // We now divtest is there bc. the regex matches
-        let test_div = caps["divtest"].parse().map_err(|_| {
-            Self::Err::new(ErrorKind::InvalidData, "Invalid divisor")
-        })?;
+        let test_div = caps["divtest"]
+            .parse()
+            .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid divisor"))?;
 
         // We now truetgt is there bc. the regex matches
-        let true_target = caps["truetgt"].parse().map_err(|_| {
-            Self::Err::new(
-                ErrorKind::InvalidData,
-                "Invalid true target monkey id",
-            )
-        })?;
+        let true_target = caps["truetgt"]
+            .parse()
+            .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Invalid true target monkey id"))?;
 
         // We now falsetgt is there bc. the regex matches
         let false_target = caps["falsetgt"].parse().map_err(|_| {
-            Self::Err::new(
-                ErrorKind::InvalidData,
-                "Invalid false target monkey id",
-            )
+            Self::Err::new(ErrorKind::InvalidData, "Invalid false target monkey id")
         })?;
 
         Ok(Monkey {
@@ -246,10 +234,7 @@ impl Monkey {
         self.inspect_and_throw_worried(3)
     }
 
-    fn inspect_and_throw_worried(
-        &mut self,
-        worry_div: WorryLevel,
-    ) -> Option<MonkeyThrow> {
+    fn inspect_and_throw_worried(&mut self, worry_div: WorryLevel) -> Option<MonkeyThrow> {
         let item = self.items.pop_front()?;
         let item = self.inspect(item);
         let item = item / worry_div;
@@ -270,10 +255,7 @@ struct KeepAway {
 }
 
 impl KeepAway {
-    fn new(
-        monkeys: impl IntoIterator<Item = Monkey>,
-        worry_div: WorryLevel,
-    ) -> Self {
+    fn new(monkeys: impl IntoIterator<Item = Monkey>, worry_div: WorryLevel) -> Self {
         let mut idxmap = IndexMap::new();
 
         for monkey in monkeys {
@@ -303,10 +285,8 @@ impl KeepAway {
             let monkey = self.monkeys.get_mut(&monkey_id).unwrap();
 
             // collect so monkey drops and second mut borrow is possible
-            let thrown: Vec<MonkeyThrow> = std::iter::from_fn(|| {
-                monkey.inspect_and_throw_worried(self.worry_div)
-            })
-            .collect();
+            let thrown: Vec<MonkeyThrow> =
+                std::iter::from_fn(|| monkey.inspect_and_throw_worried(self.worry_div)).collect();
 
             let thrown_len = thrown.len() as u32;
             self.inspections
