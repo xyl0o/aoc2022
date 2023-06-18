@@ -17,8 +17,7 @@ pub fn both(input: &str) {
 
 pub fn part_one(input: &str) -> u32 {
     lazy_static! {
-        static ref RE_CMD_RAW: Regex =
-            Regex::new(r"(?m)^\$(?:[^\$])+").unwrap();
+        static ref RE_CMD_RAW: Regex = Regex::new(r"(?m)^\$(?:[^\$])+").unwrap();
     }
 
     let cmds: Result<Vec<_>, _> = RE_CMD_RAW
@@ -41,8 +40,7 @@ pub fn part_one(input: &str) -> u32 {
 
 pub fn part_two(input: &str) -> u32 {
     lazy_static! {
-        static ref RE_CMD_RAW: Regex =
-            Regex::new(r"(?m)^\$(?:[^\$])+").unwrap();
+        static ref RE_CMD_RAW: Regex = Regex::new(r"(?m)^\$(?:[^\$])+").unwrap();
     }
 
     let cmds: Result<Vec<_>, _> = RE_CMD_RAW
@@ -79,8 +77,7 @@ enum Cmd<'a> {
 
 fn parse_cmd(input: &str) -> Result<Cmd, &'static str> {
     lazy_static! {
-        static ref RE_CMD: Regex =
-            Regex::new(r"^\$ ([[:word:]]+)((?:\s+*\S+)*)\s*").unwrap();
+        static ref RE_CMD: Regex = Regex::new(r"^\$ ([[:word:]]+)((?:\s+*\S+)*)\s*").unwrap();
     }
 
     let mut lines = input.lines();
@@ -132,8 +129,7 @@ impl FromStr for FsObj {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         lazy_static! {
-            static ref RE_LINE: Regex =
-                Regex::new(r"([0-9]+|dir) ([[:print:]]+)").unwrap();
+            static ref RE_LINE: Regex = Regex::new(r"([0-9]+|dir) ([[:print:]]+)").unwrap();
         }
 
         let caps = RE_LINE.captures(s).ok_or(Self::Err::new(
@@ -150,12 +146,9 @@ impl FromStr for FsObj {
             },
             fsize => FsObj::File {
                 name: fname,
-                size: fsize.parse().map_err(|_| {
-                    Self::Err::new(
-                        ErrorKind::InvalidData,
-                        "Couldn't parse output",
-                    )
-                })?,
+                size: fsize
+                    .parse()
+                    .map_err(|_| Self::Err::new(ErrorKind::InvalidData, "Couldn't parse output"))?,
             },
         };
         Ok(fs_obj)
@@ -198,12 +191,8 @@ impl FsTree {
                     }
                     cwd
                 }
-                Cmd::Cd { path } if path == &".." => {
-                    cwd.ancestors().take(2).last().unwrap()
-                }
-                Cmd::Cd { path } if path == &"/" => {
-                    cwd.ancestors().last().unwrap()
-                }
+                Cmd::Cd { path } if path == &".." => cwd.ancestors().take(2).last().unwrap(),
+                Cmd::Cd { path } if path == &"/" => cwd.ancestors().last().unwrap(),
                 Cmd::Cd { path } => cwd
                     .children()
                     .filter(|node| match &*node.borrow() {
